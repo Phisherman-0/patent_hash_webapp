@@ -145,7 +145,9 @@ export default function Sidebar({ className, onItemClick }: SidebarProps) {
       <div className="flex-shrink-0 border-t border-gray-200 p-4" data-testid="user-profile">
         <div className="flex items-center w-full">
           <Avatar className="w-10 h-10">
-            <AvatarImage src="" alt={user?.firstName || ""} />
+            <AvatarImage src={user?.profileImageUrl ? `${import.meta.env.VITE_API_BASE_URL}${user.profileImageUrl}` : ""}
+            alt={user?.firstName || ""} 
+            />
             <AvatarFallback className="bg-primary text-white font-semibold text-sm">
               {getUserInitials()}
             </AvatarFallback>

@@ -64,25 +64,105 @@ export interface PatentDocument {
 
 // Auth API calls
 export const authAPI = {
-  login: (credentials: { email: string; password: string }) =>
-    api.post('/auth/login', credentials),
-  
-  register: (userData: { 
-    email: string; 
-    password: string; 
-    firstName: string; 
-    lastName: string;
-  }) => api.post('/auth/register', userData),
-  
-  logout: () => api.post('/auth/logout'),
-  
-  getCurrentUser: () => api.get('/auth/user'),
-  
-  updateProfile: (data: { firstName: string; lastName: string; email: string }) =>
-    api.put('/auth/user', data),
-  
-  updateSettings: (settings: any) =>
-    api.put('/auth/user/settings', { settings }),
+  login: async (email: string, password: string) => {
+    const response = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, password }),
+    });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Login failed');
+    }
+    
+    return response.json();
+  },
+
+  register: async (userData: { firstName: string; lastName: string; email: string; password: string }) => {
+    const response = await fetch('/api/auth/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(userData),
+    });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Registration failed');
+    }
+    
+    return response.json();
+  },
+
+  logout: async () => {
+    const response = await fetch('/api/auth/logout', {
+      method: 'POST',
+    });
+    
+    if (!response.ok) {
+      throw new Error('Logout failed');
+    }
+    
+    return response.json();
+  },
+
+  getCurrentUser: async () => {
+    const response = await fetch('/api/auth/user');
+    
+    if (!response.ok) {
+      if (response.status === 401) {
+        throw new Error('Unauthorized');
+      }
+      throw new Error('Failed to get current user');
+    }
+    
+    return response.json();
+  },
+
+  updateProfile: async (profileData: { firstName: string; lastName: string; email: string }) => {
+    const response = await fetch('/api/auth/profile', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(profileData),
+    });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Profile update failed');
+    }
+    
+    return response.json();
+  },
+
+  uploadProfileImage: async (imageFile: File) => {
+    const formData = new FormData();
+    formData.append('profileImage', imageFile);
+
+    const response = await fetch('/api/auth/profile/image', {
+      method: 'POST',
+      body: formData,
+    });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Profile image upload failed');
+    }
+    
+    return response.json();
+  },
+
+  deleteProfileImage: async () => {
+    const response = await fetch('/api/auth/profile/image', {
+      method: 'DELETE',
+    });
+    
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.message || 'Profile image deletion failed');
+    }
+    
+    return response.json();
+  },
 };
 
 // Dashboard API calls
@@ -116,6 +196,9 @@ export const patentAPI = {
   
   getAIAnalysis: (id: string): Promise<AIAnalysis[]> => 
     api.get(`/patents/${id}/ai-analysis`),
+  
+  verifyOwnership: (data: { verificationMethod: string; identifier: string }) =>
+    api.post('/blockchain/verify-ownership', data),
 };
 
 // AI API calls
@@ -143,6 +226,9 @@ export const blockchainAPI = {
   
   mintNFT: (patentId: string) =>
     api.post(`/blockchain/mint-nft/${patentId}`),
+  
+  verifyOwnership: (data: { verificationMethod: string; identifier: string }) =>
+    api.post('/blockchain/verify-ownership', data),
 };
 
 // Document API calls

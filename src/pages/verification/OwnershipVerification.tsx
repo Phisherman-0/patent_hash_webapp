@@ -41,33 +41,7 @@ export default function OwnershipVerification() {
 
   const verificationMutation = useMutation({
     mutationFn: async (data: VerificationForm) => {
-      // Mock verification response - in real implementation, this would verify on blockchain
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      const mockResults = {
-        verified: true,
-        owner: {
-          id: "user-123",
-          name: "John Doe",
-          email: "john.doe@example.com",
-          walletAddress: "0x742d35Cc6634C0532925a3b8D186aD734c27004f"
-        },
-        patent: {
-          id: data.identifier,
-          title: "Advanced Machine Learning Algorithm for Medical Diagnosis",
-          status: "approved",
-          createdAt: "2024-01-15T10:00:00Z",
-          hederaNftId: "0.0.123456",
-          hederaTopicId: "0.0.654321",
-        },
-        blockchain: {
-          network: "Hedera Mainnet",
-          transactionId: "0.0.123456@1705312800.123456789",
-          timestamp: "2024-01-15T10:00:00Z",
-        }
-      };
-      
-      return mockResults;
+      return patentAPI.verifyOwnership(data);
     },
     onSuccess: (data) => {
       setVerificationResults(data);

@@ -4,6 +4,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAppDispatch, useAppSelector } from "@/hooks/useAppDispatch";
 import { clearUser } from "@/store/authSlice";
 import { dashboardAPI, DashboardStats, Activity, CategoryStat } from "@/lib/apiService";
+import { formatCurrency } from "@/lib/utils";
 import { useLocation } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -23,6 +24,7 @@ import {
   AlertTriangle,
   BarChart3,
 } from "lucide-react";
+
 export default function Dashboard() {
   const { toast } = useToast();
   const dispatch = useAppDispatch();
@@ -186,7 +188,7 @@ export default function Dashboard() {
               <div className="min-w-0 flex-1">
                 <p className="text-gray-500 text-sm font-medium truncate">Portfolio Value</p>
                 <p className="text-2xl lg:text-3xl font-bold text-gray-900 truncate">
-                  ${stats?.portfolioValue ? Number(stats.portfolioValue).toLocaleString() : '0'}
+                  {formatCurrency(stats?.portfolioValue || '0')}
                 </p>
                 <p className="text-green-600 text-sm mt-1 truncate">
                   <TrendingUp size={14} className="inline mr-1 flex-shrink-0" />

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -28,6 +28,8 @@ import {
   Camera,
   Save,
   Trash2,
+  Upload,
+  X,
 } from "lucide-react";
 import z from "zod";
 
@@ -44,6 +46,8 @@ export default function Profile() {
   const dispatch = useAppDispatch();
   const { user, isInitialized, isLoading } = useAppSelector((state) => state.auth);
   const queryClient = useQueryClient();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
 
   // Fetch user stats
   const { data: userStats } = useQuery({
@@ -98,6 +102,56 @@ export default function Profile() {
     },
   });
 
+  const uploadImageMutation = useMutation({
+    mutationFn: async (file: File) => {
+      return authAPI.uploadProfileImage(file);
+    },
+    onSuccess: (response) => {
+      dispatch(fetchUser());
+      toast({
+        title: "Profile image updated",
+        description: "Your profile image has been successfully updated.",
+      });
+      setIsUploadingImage(false);
+    },
+    onError: (error: any) => {
+      if (isUnauthorizedError(error)) {
+        dispatch(logoutUser());
+        return;
+      }
+      toast({
+        title: "Error uploading image",
+        description: error?.message || "Failed to upload profile image",
+        variant: "destructive",
+      });
+      setIsUploadingImage(false);
+    },
+  });
+
+  const deleteImageMutation = useMutation({
+    mutationFn: async () => {
+      return authAPI.deleteProfileImage();
+    },
+    onSuccess: () => {
+      dispatch(fetchUser());
+      toast({
+        title: "Profile image deleted",
+        description: "Your profile image has been successfully removed.",
+      });
+    },
+    onError: (error: any) => {
+      if (isUnauthorizedError(error)) {
+        dispatch(logoutUser());
+        return;
+      }
+      toast({
+        title: "Error deleting image",
+        description: error?.message || "Failed to delete profile image",
+        variant: "destructive",
+      });
+    },
+  });
+
   const onSubmit = (data: ProfileFormValues) => {
     updateProfileMutation.mutate(data);
   };
@@ -111,6 +165,42 @@ export default function Profile() {
 
   const handleLogout = () => {
     dispatch(logoutUser());
+  };
+
+  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        toast({
+          title: "Invalid file type",
+          description: "Please select an image file.",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      // Validate file size (5MB limit)
+      if (file.size > 5 * 1024 * 1024) {
+        toast({
+          title: "File too large",
+          description: "Please select an image smaller than 5MB.",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      setIsUploadingImage(true);
+      uploadImageMutation.mutate(file);
+    }
+  };
+
+  const triggerImageUpload = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleDeleteImage = () => {
+    deleteImageMutation.mutate();
   };
 
   if (isLoading) {
@@ -143,18 +233,51 @@ export default function Profile() {
               <div className="flex justify-center mb-4">
                 <div className="relative">
                   <Avatar className="w-24 h-24">
-                    <AvatarImage src={user?.profileImageUrl || ""} alt={user?.firstName || ""} />
+                    <AvatarImage 
+                      src={user?.profileImageUrl ? `${import.meta.env.VITE_API_BASE_URL}${user.profileImageUrl}` : ""} 
+                      alt={user?.firstName || ""} 
+                    />
                     <AvatarFallback className="bg-primary text-white text-2xl font-semibold">
                       {getUserInitials()}
                     </AvatarFallback>
                   </Avatar>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="absolute -bottom-2 -right-2 w-8 h-8 rounded-full p-0"
-                  >
-                    <Camera size={14} />
-                  </Button>
+                  <div className="absolute -bottom-2 -right-2 flex gap-1">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-8 h-8 rounded-full p-0"
+                      onClick={triggerImageUpload}
+                      disabled={isUploadingImage || uploadImageMutation.isPending}
+                    >
+                      {isUploadingImage || uploadImageMutation.isPending ? (
+                        <div className="w-3 h-3 border border-gray-300 border-t-transparent rounded-full animate-spin" />
+                      ) : (
+                        <Camera size={14} />
+                      )}
+                    </Button>
+                    {user?.profileImageUrl && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-8 h-8 rounded-full p-0 text-red-600 hover:text-red-700"
+                        onClick={handleDeleteImage}
+                        disabled={deleteImageMutation.isPending}
+                      >
+                        {deleteImageMutation.isPending ? (
+                          <div className="w-3 h-3 border border-red-300 border-t-transparent rounded-full animate-spin" />
+                        ) : (
+                          <X size={14} />
+                        )}
+                      </Button>
+                    )}
+                  </div>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    className="hidden"
+                  />
                 </div>
               </div>
               <CardTitle>

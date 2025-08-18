@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
-import { patentAPI, documentAPI, type PatentDocument } from "@/lib/apiService";
+import { patentAPI, documentAPI, blockchainAPI, type PatentDocument } from "@/lib/apiService";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import { useAppDispatch, useAppSelector } from "@/hooks/useAppDispatch";
 import { clearUser } from "@/store/authSlice";
@@ -24,6 +24,7 @@ import {
   Brain,
   Plus,
   Trash2,
+  Coins,
 } from "lucide-react";
 import { Link } from "wouter";
 
@@ -181,6 +182,26 @@ export default function MyPatents() {
       toast({
         title: "Error deleting patent",
         description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const mintNFTMutation = useMutation({
+    mutationFn: async (patentId: string) => {
+      return blockchainAPI.mintNFT(patentId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["patents"] });
+      toast({
+        title: "NFT Minted Successfully",
+        description: "Your patent NFT has been minted on the Hedera blockchain.",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "NFT Minting Failed",
+        description: error.message || "Failed to mint NFT. Please try again.",
         variant: "destructive",
       });
     },
@@ -390,7 +411,7 @@ export default function MyPatents() {
                           {formatDate(patent.filedAt || patent.createdAt)}
                         </TableCell>
                         <TableCell>
-                          <div className="flex items-center space-x-1">
+                          <div className="flex items-center justify-center space-x-1">
                             {patent.hederaTopicId && (
                               <Shield className="text-green-600" size={16} />
                             )}
@@ -561,6 +582,16 @@ export default function MyPatents() {
             <Button variant="outline" onClick={() => setShowPatentModal(false)}>
               Close
             </Button>
+            {selectedPatent && !selectedPatent.hederaNftId && (
+              <Button 
+                onClick={() => mintNFTMutation.mutate(selectedPatent.id)}
+                disabled={mintNFTMutation.isPending}
+                className="mr-2"
+              >
+                <Coins className="mr-2" size={16} />
+                {mintNFTMutation.isPending ? "Minting NFT..." : "Mint NFT"}
+              </Button>
+            )}
             <Button>
               <Download className="mr-2" size={16} />
               Download Patent
