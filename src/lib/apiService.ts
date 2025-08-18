@@ -64,105 +64,29 @@ export interface PatentDocument {
 
 // Auth API calls
 export const authAPI = {
-  login: async (email: string, password: string) => {
-    const response = await fetch('/api/auth/login', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, password }),
-    });
-    
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || 'Login failed');
-    }
-    
-    return response.json();
-  },
+  login: async (email: string, password: string) => 
+    api.post('/auth/login', { email, password }),
 
-  register: async (userData: { firstName: string; lastName: string; email: string; password: string }) => {
-    const response = await fetch('/api/auth/register', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(userData),
-    });
-    
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || 'Registration failed');
-    }
-    
-    return response.json();
-  },
+  register: async (userData: { firstName: string; lastName: string; email: string; password: string }) => 
+    api.post('/auth/register', userData),
 
-  logout: async () => {
-    const response = await fetch('/api/auth/logout', {
-      method: 'POST',
-    });
-    
-    if (!response.ok) {
-      throw new Error('Logout failed');
-    }
-    
-    return response.json();
-  },
+  logout: async () => 
+    api.post('/auth/logout'),
 
-  getCurrentUser: async () => {
-    const response = await fetch('/api/auth/user');
-    
-    if (!response.ok) {
-      if (response.status === 401) {
-        throw new Error('Unauthorized');
-      }
-      throw new Error('Failed to get current user');
-    }
-    
-    return response.json();
-  },
+  getCurrentUser: async () => 
+    api.get('/auth/user'),
 
-  updateProfile: async (profileData: { firstName: string; lastName: string; email: string }) => {
-    const response = await fetch('/api/auth/profile', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(profileData),
-    });
-    
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || 'Profile update failed');
-    }
-    
-    return response.json();
-  },
+  updateProfile: async (profileData: { firstName: string; lastName: string; email: string }) => 
+    api.put('/auth/profile', profileData),
 
   uploadProfileImage: async (imageFile: File) => {
     const formData = new FormData();
     formData.append('profileImage', imageFile);
-
-    const response = await fetch('/api/auth/profile/image', {
-      method: 'POST',
-      body: formData,
-    });
-    
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || 'Profile image upload failed');
-    }
-    
-    return response.json();
+    return api.upload('/auth/profile/image', formData);
   },
 
-  deleteProfileImage: async () => {
-    const response = await fetch('/api/auth/profile/image', {
-      method: 'DELETE',
-    });
-    
-    if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.message || 'Profile image deletion failed');
-    }
-    
-    return response.json();
-  },
+  deleteProfileImage: async () => 
+    api.delete('/auth/profile/image'),
 };
 
 // Dashboard API calls

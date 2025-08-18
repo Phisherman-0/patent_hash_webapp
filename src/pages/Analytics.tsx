@@ -295,7 +295,7 @@ export default function Analytics() {
                     fill="#8884d8"
                     dataKey="count"
                   >
-                    {categoryStats.map((entry: any, index: number) => (
+                    {categoryStats.map((_, index: number) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>

@@ -1,5 +1,23 @@
 // API Configuration
-export const API_BASE_URL = (import.meta as any).env?.VITE_API_BASE_URL || 'http://localhost:5000';
+const getApiBaseUrl = () => {
+  // Use environment variable if available
+  if ((import.meta as any).env.VITE_API_BASE_URL) {
+    return (import.meta as any).env.VITE_API_BASE_URL;
+  }
+  
+  // Check if we're in production build
+  const isProduction = (import.meta as any).env.PROD;
+  
+  // Production: use production API URL
+  if (isProduction) {
+    return 'https://patent-hash-api.onrender.com';
+  }
+  
+  // Development: use localhost backend
+  return 'http://localhost:5000';
+};
+
+export const API_BASE_URL = getApiBaseUrl();
 
 // API Endpoints
 export const API_ENDPOINTS = {

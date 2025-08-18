@@ -1,4 +1,12 @@
-import { apiService } from './apiService';
+// Get API base URL
+const getApiBaseUrl = () => {
+  if ((import.meta as any).env.VITE_API_BASE_URL) {
+    return (import.meta as any).env.VITE_API_BASE_URL;
+  }
+  return (import.meta as any).env.PROD ? 'https://patent-hash-api.onrender.com' : 'http://localhost:5000';
+};
+
+const apiBaseUrl = getApiBaseUrl();
 
 // Simple API connectivity test
 export const testAPIConnectivity = async () => {
@@ -6,7 +14,7 @@ export const testAPIConnectivity = async () => {
     console.log('Testing API connectivity...');
     
     // Test health endpoint (if available)
-    const response = await fetch('http://localhost:5000/api/health', {
+    const response = await fetch(`${apiBaseUrl}/api/health`, {
       credentials: 'include'
     });
     
@@ -30,7 +38,7 @@ export const testAuthEndpoints = async () => {
     console.log('Testing auth endpoints...');
     
     // Test get current user (should return 401 if not authenticated)
-    const userResponse = await fetch('http://localhost:5000/api/auth/user', {
+    const userResponse = await fetch(`${apiBaseUrl}/api/auth/user`, {
       credentials: 'include'
     });
     
