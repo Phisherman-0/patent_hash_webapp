@@ -208,7 +208,7 @@ export default function DocumentManagement() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 pb-8">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Document Management</h1>
         <p className="text-gray-600">Manage and organize your patent documents</p>
@@ -273,7 +273,7 @@ export default function DocumentManagement() {
             <div className="flex items-center">
               <FileText className="h-8 w-8 text-blue-600" />
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Total Documents</p>
+                <p className="text-xs font-medium text-gray-600">Total Documents</p>
                 <p className="text-2xl font-bold text-gray-900">{documents.length}</p>
               </div>
             </div>
@@ -285,7 +285,7 @@ export default function DocumentManagement() {
             <div className="flex items-center">
               <Hash className="h-8 w-8 text-green-600" />
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Verified Documents</p>
+                <p className="text-xs font-medium text-gray-600">Verified Documents</p>
                 <p className="text-2xl font-bold text-gray-900">{documents.length}</p>
               </div>
             </div>
@@ -297,7 +297,7 @@ export default function DocumentManagement() {
             <div className="flex items-center">
               <User className="h-8 w-8 text-purple-600" />
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">Patents</p>
+                <p className="text-xs font-medium text-gray-600">Patents</p>
                 <p className="text-2xl font-bold text-gray-900">{patents.length}</p>
               </div>
             </div>
@@ -309,7 +309,7 @@ export default function DocumentManagement() {
             <div className="flex items-center">
               <Calendar className="h-8 w-8 text-orange-600" />
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">This Month</p>
+                <p className="text-xs font-medium text-gray-600">This Month</p>
                 <p className="text-2xl font-bold text-gray-900">
                   {documents.filter(doc => {
                     const docDate = new Date(doc.createdAt);

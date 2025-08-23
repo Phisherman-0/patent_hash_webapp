@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { walletAPI } from '@/lib/apiService';
+import { useAppSelector } from '@/hooks/useAppDispatch';
 
 interface WalletStatusInfo {
   isConfigured: boolean;
@@ -20,10 +21,18 @@ const WalletContext = createContext<WalletContextType | undefined>(undefined);
 
 export function WalletProvider({ children }: { children: ReactNode }) {
   const [walletStatus, setWalletStatus] = useState<WalletStatusInfo>({ isConfigured: false });
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { user, isInitialized } = useAppSelector((state) => state.auth);
 
   const checkWalletStatus = async () => {
+    // Only check wallet status if user is authenticated
+    if (!user) {
+      setWalletStatus({ isConfigured: false });
+      setIsLoading(false);
+      return;
+    }
+
     try {
       setError(null);
       const status = await walletAPI.getStatus();
@@ -48,13 +57,20 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
-    checkWalletStatus();
-    
-    // Set up polling to check wallet status every 30 seconds
-    const interval = setInterval(checkWalletStatus, 30000);
-    
-    return () => clearInterval(interval);
-  }, []);
+    // Only initialize wallet status after auth is initialized and user is authenticated
+    if (isInitialized && user) {
+      checkWalletStatus();
+      
+      // Set up polling to check wallet status every 30 seconds
+      const interval = setInterval(checkWalletStatus, 30000);
+      
+      return () => clearInterval(interval);
+    } else if (isInitialized && !user) {
+      // Clear wallet status if user is not authenticated
+      setWalletStatus({ isConfigured: false });
+      setIsLoading(false);
+    }
+  }, [user, isInitialized]);
 
   const value = {
     walletStatus,
