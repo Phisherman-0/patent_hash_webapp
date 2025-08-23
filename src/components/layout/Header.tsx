@@ -1,9 +1,8 @@
-import { useState } from "react";
-import { Search, Bell, Plus, Menu } from "lucide-react";
+import { Bell, Plus, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { useLocation, Link } from "wouter";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { WalletStatus } from "@/components/wallet/WalletStatus";
 
 interface HeaderProps {
   onMobileMenuToggle: () => void;
@@ -11,7 +10,6 @@ interface HeaderProps {
 
 export default function Header({ onMobileMenuToggle }: HeaderProps) {
   const [location] = useLocation();
-  const [searchQuery, setSearchQuery] = useState("");
 
   const getPageTitle = () => {
     const pathMap: Record<string, string> = {
@@ -32,19 +30,13 @@ export default function Header({ onMobileMenuToggle }: HeaderProps) {
       '/verification/ownership': 'Ownership Verification',
       '/verification/certificates': 'Patent Certificates',
       '/profile': 'Profile',
-      '/settings': 'Settings',
+      'Wallet': 'Wallet',
+      '/wallet': 'Wallet',
     };
     
     return pathMap[location] || 'Patent Hash';
   };
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      // TODO: Implement search functionality
-      console.log('Searching for:', searchQuery);
-    }
-  };
 
   return (
     <header className="bg-white shadow-sm border-b border-gray-200">
@@ -62,19 +54,8 @@ export default function Header({ onMobileMenuToggle }: HeaderProps) {
         </div>
         
         <div className="flex items-center space-x-4">
-          {/* Search Bar */}
-          <form onSubmit={handleSearch} className="relative hidden md:block">
-            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-              <Search className="h-4 w-4 text-gray-400" />
-            </div>
-            <Input
-              type="text"
-              placeholder="Search patents..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-64 pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-            />
-          </form>
+          {/* Wallet Status */}
+          <WalletStatus />
 
           {/* Theme Toggle */}
           <ThemeToggle />

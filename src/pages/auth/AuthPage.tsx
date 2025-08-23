@@ -12,19 +12,19 @@ import { Input } from "@/components/ui/input";
 import { LoadingOverlay } from "@/components/ui/loading-overlay";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Lock, Mail, User, Shield, Zap, FileText } from "lucide-react";
+import { Lock, Mail, User, Eye, EyeOff } from "lucide-react";
 
 const loginSchema = z.object({
-  email: z.string().email("Please enter a valid email address"),
-  password: z.string().min(6, "Password must be at least 6 characters"),
+  email: z.string().min(1, "Email is required").email("Please enter a valid email address"),
+  password: z.string().min(1, "Password is required").min(6, "Password must be at least 6 characters"),
 });
 
 const registerSchema = z.object({
-  firstName: z.string().min(2, "First name must be at least 2 characters"),
-  lastName: z.string().min(2, "Last name must be at least 2 characters"),
-  email: z.string().email("Please enter a valid email address"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
-  confirmPassword: z.string(),
+  firstName: z.string().min(1, "First name is required").min(2, "First name must be at least 2 characters"),
+  lastName: z.string().min(1, "Last name is required").min(2, "Last name must be at least 2 characters"),
+  email: z.string().min(1, "Email is required").email("Please enter a valid email address"),
+  password: z.string().min(1, "Password is required").min(8, "Password must be at least 8 characters"),
+  confirmPassword: z.string().min(1, "Please confirm your password"),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Passwords don't match",
   path: ["confirmPassword"],
@@ -35,6 +35,9 @@ type RegisterFormValues = z.infer<typeof registerSchema>;
 
 export default function AuthPage() {
   const [activeTab, setActiveTab] = useState("login");
+  const [showLoginPassword, setShowLoginPassword] = useState(false);
+  const [showRegisterPassword, setShowRegisterPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const dispatch = useAppDispatch();
   const { user, isLoading, error } = useAppSelector((state) => state.auth);
   const [, navigate] = useLocation();
@@ -66,11 +69,13 @@ export default function AuthPage() {
   });
 
   const onLogin = async (data: LoginFormValues) => {
+    console.log('Login form data:', data); // Debug log
     dispatch(clearError());
     dispatch(loginUser(data));
   };
 
   const onRegister = async (data: RegisterFormValues) => {
+    console.log('Register form data:', data); // Debug log
     dispatch(clearError());
     const { confirmPassword, ...userData } = data;
     dispatch(registerUser(userData));
@@ -83,56 +88,17 @@ export default function AuthPage() {
         message={activeTab === "login" ? "Signing you in..." : "Creating your account..."}
       />
       
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-        <div className="max-w-6xl w-full grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
-          
-          {/* Hero Section */}
-          <div className="space-y-8">
-            <div className="text-center lg:text-left">
-              <h1 className="text-4xl lg:text-6xl font-bold text-gray-900 mb-4">
+      <div className="min-h-screen bg-white flex items-center justify-center p-4">
+        <div className="w-full max-w-md">
+          <Card className="shadow-lg border border-gray-100">
+            <CardHeader className="text-center pb-6">
+              <h1 className="text-4xl font-bold text-gray-900 mb-2">
                 Patent <span className="text-orange-500">Hash</span>
               </h1>
-              <p className="text-xl text-gray-600 mb-8">
-                Secure your intellectual property with blockchain technology and AI-powered analysis
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="text-center p-6 bg-white rounded-lg shadow-sm">
-                <Shield className="h-12 w-12 text-blue-600 mx-auto mb-4" />
-                <h3 className="font-semibold text-gray-900 mb-2">Blockchain Security</h3>
-                <p className="text-sm text-gray-600">
-                  Immutable proof-of-existence using Hedera blockchain technology
-                </p>
-              </div>
-              
-              <div className="text-center p-6 bg-white rounded-lg shadow-sm">
-                <Zap className="h-12 w-12 text-green-600 mx-auto mb-4" />
-                <h3 className="font-semibold text-gray-900 mb-2">AI Analysis</h3>
-                <p className="text-sm text-gray-600">
-                  Advanced prior art detection and patent similarity scoring
-                </p>
-              </div>
-              
-              <div className="text-center p-6 bg-white rounded-lg shadow-sm">
-                <FileText className="h-12 w-12 text-purple-600 mx-auto mb-4" />
-                <h3 className="font-semibold text-gray-900 mb-2">Easy Filing</h3>
-                <p className="text-sm text-gray-600">
-                  Streamlined patent filing with automated document processing
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Auth Form */}
-          <div className="w-full max-w-md mx-auto">
-            <Card className="shadow-xl">
-              <CardHeader className="text-center">
-                <CardTitle className="text-2xl">Welcome to Patent Hash</CardTitle>
-                <CardDescription>
-                  Sign in to your account or create a new one to get started
-                </CardDescription>
-              </CardHeader>
+              <CardDescription className="text-gray-600">
+                Sign in to continue
+              </CardDescription>
+            </CardHeader>
               <CardContent>
                 {error && (
                   <Alert variant="destructive" className="mb-6">
@@ -140,28 +106,41 @@ export default function AuthPage() {
                   </Alert>
                 )}
 
-                <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-                  <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="login" data-testid="tab-login">Sign In</TabsTrigger>
-                    <TabsTrigger value="register" data-testid="tab-register">Sign Up</TabsTrigger>
+                <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+                  <TabsList className="grid w-full grid-cols-2 bg-gray-50 p-1 rounded-lg">
+                    <TabsTrigger 
+                      value="login" 
+                      data-testid="tab-login"
+                      className="rounded-md font-medium data-[state=active]:bg-orange-500 data-[state=active]:text-white data-[state=active]:shadow-sm"
+                    >
+                      Sign In
+                    </TabsTrigger>
+                    <TabsTrigger 
+                      value="register" 
+                      data-testid="tab-register"
+                      className="rounded-md font-medium data-[state=active]:bg-orange-500 data-[state=active]:text-white data-[state=active]:shadow-sm"
+                    >
+                      Sign Up
+                    </TabsTrigger>
                   </TabsList>
 
                   {/* Login Tab */}
-                  <TabsContent value="login" className="space-y-4">
+                  <TabsContent value="login" className="space-y-6">
                     <Form {...loginForm}>
-                      <form onSubmit={loginForm.handleSubmit(onLogin)} className="space-y-4">
+                      <form onSubmit={loginForm.handleSubmit(onLogin)} className="space-y-6">
                         <FormField
                           control={loginForm.control}
                           name="email"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Email</FormLabel>
+                              <FormLabel className="text-gray-700 font-medium">Email</FormLabel>
                               <FormControl>
                                 <div className="relative">
                                   <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                                   <Input 
+                                    type="email"
                                     placeholder="Enter your email"
-                                    className="pl-10"
+                                    className="pl-10 h-10 border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                                     data-testid="input-login-email"
                                     {...field}
                                   />
@@ -177,17 +156,24 @@ export default function AuthPage() {
                           name="password"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Password</FormLabel>
+                              <FormLabel className="text-gray-700 font-medium">Password</FormLabel>
                               <FormControl>
                                 <div className="relative">
                                   <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                                   <Input 
-                                    type="password"
+                                    type={showLoginPassword ? "text" : "password"}
                                     placeholder="Enter your password"
-                                    className="pl-10"
+                                    className="pl-10 pr-10 h-10 border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                                     data-testid="input-login-password"
                                     {...field}
                                   />
+                                  <button
+                                    type="button"
+                                    className="absolute right-3 top-3 h-4 w-4 text-gray-400 hover:text-gray-600"
+                                    onClick={() => setShowLoginPassword(!showLoginPassword)}
+                                  >
+                                    {showLoginPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                  </button>
                                 </div>
                               </FormControl>
                               <FormMessage />
@@ -197,33 +183,40 @@ export default function AuthPage() {
 
                         <Button 
                           type="submit" 
-                          className="w-full" 
+                          className="w-full h-10 bg-orange-500 hover:bg-orange-600 text-white font-medium rounded-lg" 
                           disabled={isLoading}
                           data-testid="button-login"
                         >
-                          {isLoading ? "Signing In..." : "Sign In"}
+                          {isLoading ? (
+                            <div className="flex items-center gap-2">
+                              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                              Signing In...
+                            </div>
+                          ) : (
+                            "Sign In"
+                          )}
                         </Button>
                       </form>
                     </Form>
                   </TabsContent>
 
                   {/* Register Tab */}
-                  <TabsContent value="register" className="space-y-4">
+                  <TabsContent value="register" className="space-y-6">
                     <Form {...registerForm}>
-                      <form onSubmit={registerForm.handleSubmit(onRegister)} className="space-y-4">
+                      <form onSubmit={registerForm.handleSubmit(onRegister)} className="space-y-6">
                         <div className="grid grid-cols-2 gap-4">
                           <FormField
                             control={registerForm.control}
                             name="firstName"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>First Name</FormLabel>
+                                <FormLabel className="text-gray-700 font-medium">First Name</FormLabel>
                                 <FormControl>
                                   <div className="relative">
                                     <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                                     <Input 
                                       placeholder="First name"
-                                      className="pl-10"
+                                      className="pl-10 h-10 border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                                       data-testid="input-register-firstname"
                                       {...field}
                                     />
@@ -239,13 +232,13 @@ export default function AuthPage() {
                             name="lastName"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>Last Name</FormLabel>
+                                <FormLabel className="text-gray-700 font-medium">Last Name</FormLabel>
                                 <FormControl>
                                   <div className="relative">
                                     <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                                     <Input 
                                       placeholder="Last name"
-                                      className="pl-10"
+                                      className="pl-10 h-10 border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                                       data-testid="input-register-lastname"
                                       {...field}
                                     />
@@ -262,13 +255,14 @@ export default function AuthPage() {
                           name="email"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Email</FormLabel>
+                              <FormLabel className="text-gray-700 font-medium">Email</FormLabel>
                               <FormControl>
                                 <div className="relative">
                                   <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                                   <Input 
+                                    type="email"
                                     placeholder="Enter your email"
-                                    className="pl-10"
+                                    className="pl-10 h-10 border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                                     data-testid="input-register-email"
                                     {...field}
                                   />
@@ -284,17 +278,24 @@ export default function AuthPage() {
                           name="password"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Password</FormLabel>
+                              <FormLabel className="text-gray-700 font-medium">Password</FormLabel>
                               <FormControl>
                                 <div className="relative">
                                   <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                                   <Input 
-                                    type="password"
+                                    type={showRegisterPassword ? "text" : "password"}
                                     placeholder="Create a password"
-                                    className="pl-10"
+                                    className="pl-10 pr-10 h-10 border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                                     data-testid="input-register-password"
                                     {...field}
                                   />
+                                  <button
+                                    type="button"
+                                    className="absolute right-3 top-3 h-4 w-4 text-gray-400 hover:text-gray-600"
+                                    onClick={() => setShowRegisterPassword(!showRegisterPassword)}
+                                  >
+                                    {showRegisterPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                  </button>
                                 </div>
                               </FormControl>
                               <FormMessage />
@@ -307,17 +308,24 @@ export default function AuthPage() {
                           name="confirmPassword"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Confirm Password</FormLabel>
+                              <FormLabel className="text-gray-700 font-medium">Confirm Password</FormLabel>
                               <FormControl>
                                 <div className="relative">
                                   <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                                   <Input 
-                                    type="password"
+                                    type={showConfirmPassword ? "text" : "password"}
                                     placeholder="Confirm your password"
-                                    className="pl-10"
+                                    className="pl-10 pr-10 h-10 border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                                     data-testid="input-register-confirm-password"
                                     {...field}
                                   />
+                                  <button
+                                    type="button"
+                                    className="absolute right-3 top-3 h-4 w-4 text-gray-400 hover:text-gray-600"
+                                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                  >
+                                    {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                                  </button>
                                 </div>
                               </FormControl>
                               <FormMessage />
@@ -327,11 +335,18 @@ export default function AuthPage() {
 
                         <Button 
                           type="submit" 
-                          className="w-full" 
+                          className="w-full h-10 bg-orange-500 hover:bg-orange-600 text-white font-medium rounded-lg" 
                           disabled={isLoading}
                           data-testid="button-register"
                         >
-                          {isLoading ? "Creating Account..." : "Create Account"}
+                          {isLoading ? (
+                            <div className="flex items-center gap-2">
+                              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                              Creating Account...
+                            </div>
+                          ) : (
+                            "Create Account"
+                          )}
                         </Button>
                       </form>
                     </Form>
@@ -339,7 +354,6 @@ export default function AuthPage() {
                 </Tabs>
               </CardContent>
             </Card>
-          </div>
         </div>
       </div>
     </>

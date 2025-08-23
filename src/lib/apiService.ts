@@ -64,8 +64,8 @@ export interface PatentDocument {
 
 // Auth API calls
 export const authAPI = {
-  login: async (email: string, password: string) => 
-    api.post('/auth/login', { email, password }),
+  login: async (credentials: { email: string; password: string }) => 
+    api.post('/auth/login', credentials),
 
   register: async (userData: { firstName: string; lastName: string; email: string; password: string }) => 
     api.post('/auth/register', userData),
@@ -87,6 +87,21 @@ export const authAPI = {
 
   deleteProfileImage: async () => 
     api.delete('/auth/profile/image'),
+};
+
+// Wallet API calls
+export const walletAPI = {
+  validate: async (walletConfig: { accountId: string; privateKey: string; network: string }) =>
+    api.post('/wallet/validate', walletConfig),
+
+  configure: async (walletConfig: { accountId: string; privateKey: string; network: string }) =>
+    api.post('/wallet/configure', walletConfig),
+
+  getStatus: async () =>
+    api.get('/wallet/status'),
+
+  disconnect: async () =>
+    api.delete('/wallet/disconnect'),
 };
 
 // Dashboard API calls
@@ -187,6 +202,7 @@ export const apiService = {
   ai: aiAPI,
   blockchain: blockchainAPI,
   search: searchAPI,
+  wallet: walletAPI,
 };
 
 export default apiService;

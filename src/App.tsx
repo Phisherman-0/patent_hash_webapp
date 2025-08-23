@@ -6,6 +6,7 @@ import { useAppDispatch, useAppSelector } from "@/hooks/useAppDispatch";
 import { initializeAuth } from "@/store/authSlice";
 import Layout from "@/components/layout/Layout";
 import { ThemeProvider } from "@/contexts/ThemeContext";
+import { WalletProvider } from "@/contexts/WalletContext";
 
 // Import pages
 import Dashboard from "@/pages/Dashboard";
@@ -34,6 +35,9 @@ import BlockchainVerification from "@/pages/verification/BlockchainVerification"
 import OwnershipVerification from "@/pages/verification/OwnershipVerification";
 import PatentCertificates from "@/pages/verification/PatentCertificates";
 
+// Settings
+import WalletSettings from "@/pages/settings/WalletSettings";
+
 import NotFound from "@/pages/not-found";
 
 function App() {
@@ -58,9 +62,10 @@ function App() {
 
   return (
     <ThemeProvider>
-      <div className="App">
-        <Router>
-        <Switch>
+      <WalletProvider>
+        <div className="App">
+          <Router>
+          <Switch>
           {/* Login route */}
           <Route path="/login" component={AuthPage} />
           
@@ -77,6 +82,9 @@ function App() {
                   <Route path="/" component={Dashboard} />
                   <Route path="/profile" component={Profile} />
                   <Route path="/settings" component={Settings} />
+                  <Route path="/wallet">
+                    <WalletSettings />
+                  </Route>
                   <Route path="/analytics" component={Analytics} />
                   
                   {/* Patents Routes */}
@@ -108,7 +116,8 @@ function App() {
         </Switch>
         </Router>
         <Toaster />
-      </div>
+        </div>
+      </WalletProvider>
     </ThemeProvider>
   );
 }

@@ -6,13 +6,15 @@ import { useLocation } from "wouter";
 import { z } from "zod";
 import { patentAPI } from "@/lib/apiService";
 import { useToast } from "@/hooks/use-toast";
+import { useWallet } from "@/contexts/WalletContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Upload, FileText, Brain, Shield } from "lucide-react";
+import { Upload, FileText, Brain, Shield, X, Image } from "lucide-react";
+import { WalletConnectionModal } from "@/components/wallet/WalletConnectionModal";
 
 const patentFormSchema = z.object({
   title: z.string().min(10, "Title must be at least 10 characters").max(200, "Title must be less than 200 characters"),
@@ -44,9 +46,12 @@ const categoryOptions = [
 
 export default function FilePatent() {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [showWalletModal, setShowWalletModal] = useState(false);
+  const [pendingSubmission, setPendingSubmission] = useState<PatentFormValues | null>(null);
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [, navigate] = useLocation();
+  const { walletStatus } = useWallet();
 
   const form = useForm<PatentFormValues>({
     resolver: zodResolver(patentFormSchema),
@@ -103,12 +108,31 @@ export default function FilePatent() {
       return;
     }
     
+    // Check if wallet is connected
+    if (!walletStatus.isConfigured) {
+      setPendingSubmission(data);
+      setShowWalletModal(true);
+      return;
+    }
+    
     mutation.mutate({ ...data, files: selectedFiles });
+  };
+
+  const handleWalletConnected = () => {
+    if (pendingSubmission) {
+      mutation.mutate({ ...pendingSubmission, files: selectedFiles });
+      setPendingSubmission(null);
+    }
+  };
+
+  const handleWalletModalClose = () => {
+    setShowWalletModal(false);
+    setPendingSubmission(null);
   };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
-    setSelectedFiles(files);
+    setSelectedFiles(prev => [...prev, ...files]);
   };
 
   const removeFile = (index: number) => {
@@ -245,26 +269,43 @@ export default function FilePatent() {
                     {selectedFiles.length > 0 && (
                       <div className="space-y-2">
                         <h4 className="text-sm font-medium text-gray-700">Selected Files:</h4>
-                        {selectedFiles.map((file, index) => (
-                          <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded">
-                            <div className="flex items-center space-x-2">
-                              <FileText size={16} className="text-gray-400" />
-                              <span className="text-sm text-gray-700">{file.name}</span>
-                              <span className="text-xs text-gray-500">
-                                ({(file.size / 1024 / 1024).toFixed(2)} MB)
-                              </span>
-                            </div>
-                            <Button
-                              type="button"
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => removeFile(index)}
-                              className="text-red-600 hover:text-red-800"
-                            >
-                              Remove
-                            </Button>
-                          </div>
-                        ))}
+                        <div className="max-h-40 overflow-y-auto space-y-2">
+                          {selectedFiles.map((file, index) => {
+                            const fileExtension = file.name.split('.').pop()?.toLowerCase() || '';
+                            const isImage = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp'].includes(fileExtension);
+                            const FileIcon = isImage ? Image : FileText;
+                            
+                            return (
+                              <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border">
+                                <div className="flex items-center space-x-3 flex-1 min-w-0">
+                                  <FileIcon size={16} className={`flex-shrink-0 ${isImage ? 'text-green-500' : 'text-gray-400'}`} />
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex items-center space-x-2">
+                                      <span className="text-sm font-medium text-gray-700 truncate">
+                                        {file.name}
+                                      </span>
+                                      <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full flex-shrink-0">
+                                        {fileExtension.toUpperCase()}
+                                      </span>
+                                    </div>
+                                    <span className="text-xs text-gray-500">
+                                      {(file.size / 1024 / 1024).toFixed(2)} MB
+                                    </span>
+                                  </div>
+                                </div>
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => removeFile(index)}
+                                  className="text-red-600 hover:text-red-800 hover:bg-red-50 p-1 h-8 w-8 flex-shrink-0"
+                                >
+                                  <X size={14} />
+                                </Button>
+                              </div>
+                            );
+                          })}
+                        </div>
                       </div>
                     )}
                   </div>
@@ -354,6 +395,14 @@ export default function FilePatent() {
           </Card>
         </div>
       </div>
+
+      <WalletConnectionModal
+        isOpen={showWalletModal}
+        onClose={handleWalletModalClose}
+        onWalletConnected={handleWalletConnected}
+        title="Connect Wallet to File Patent"
+        description="A wallet connection is required to file patents on the Hedera blockchain. Please configure your wallet to proceed with filing."
+      />
     </div>
   );
 }
