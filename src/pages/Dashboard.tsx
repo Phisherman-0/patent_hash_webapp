@@ -70,10 +70,10 @@ export default function Dashboard() {
   if (statsLoading || activitiesLoading || categoryLoading) {
     return (
       <div className="space-y-6">
-        <div className="h-8 bg-gray-200 rounded animate-pulse"></div>
+        <div className="h-8 bg-muted rounded animate-pulse"></div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="h-32 bg-gray-200 rounded-xl animate-pulse"></div>
+            <div key={i} className="h-32 bg-muted rounded-xl animate-pulse"></div>
           ))}
         </div>
       </div>
@@ -89,9 +89,9 @@ export default function Dashboard() {
       biotechnology: 'bg-pink-500',
       automotive: 'bg-yellow-500',
       telecommunications: 'bg-indigo-500',
-      other: 'bg-gray-500',
+      other: 'bg-muted-foreground',
     };
-    return colors[category] || 'bg-gray-500';
+    return colors[category] || 'bg-muted-foreground';
   };
 
   const formatCategoryName = (category: string) => {
@@ -114,7 +114,7 @@ export default function Dashboard() {
               }
             </p>
             <Button 
-              className="bg-white text-primary px-6 py-2 rounded-lg font-medium hover:bg-gray-100 transition-colors"
+              className="bg-white text-primary px-6 py-2 rounded-lg font-medium hover:bg-gray-100 dark:hover:bg-gray-200 transition-colors"
               onClick={() => navigate('/patents/my-patents')}
             >
               View All Updates
@@ -132,8 +132,8 @@ export default function Dashboard() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div className="min-w-0 flex-1">
-                <p className="text-gray-500 text-sm font-medium truncate">Total Patents</p>
-                <p className="text-2xl lg:text-3xl font-bold text-gray-900">{stats?.totalPatents || 0}</p>
+                <p className="text-muted-foreground text-sm font-medium truncate">Total Patents</p>
+                <p className="text-2xl lg:text-3xl font-bold text-foreground">{stats?.totalPatents || 0}</p>
                 <p className="text-green-600 text-sm mt-1 truncate">
                   <TrendingUp size={14} className="inline mr-1 flex-shrink-0" />
                   Growing strong
@@ -150,8 +150,8 @@ export default function Dashboard() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div className="min-w-0 flex-1">
-                <p className="text-gray-500 text-sm font-medium truncate">Pending Reviews</p>
-                <p className="text-2xl lg:text-3xl font-bold text-gray-900">{stats?.pendingReviews || 0}</p>
+                <p className="text-muted-foreground text-sm font-medium truncate">Pending Reviews</p>
+                <p className="text-2xl lg:text-3xl font-bold text-foreground">{stats?.pendingReviews || 0}</p>
                 <p className="text-yellow-600 text-sm mt-1 truncate">
                   <Clock size={14} className="inline mr-1 flex-shrink-0" />
                   Avg. 14 days
@@ -168,8 +168,8 @@ export default function Dashboard() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div className="min-w-0 flex-1">
-                <p className="text-gray-500 text-sm font-medium truncate">Blockchain Verified</p>
-                <p className="text-2xl lg:text-3xl font-bold text-gray-900">{stats?.blockchainVerified || 0}</p>
+                <p className="text-muted-foreground text-sm font-medium truncate">Blockchain Verified</p>
+                <p className="text-2xl lg:text-3xl font-bold text-foreground">{stats?.blockchainVerified || 0}</p>
                 <p className="text-green-600 text-sm mt-1 truncate">
                   <Shield size={14} className="inline mr-1 flex-shrink-0" />
                   100% secure
@@ -186,8 +186,8 @@ export default function Dashboard() {
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div className="min-w-0 flex-1">
-                <p className="text-gray-500 text-sm font-medium truncate">Portfolio Value</p>
-                <p className="text-2xl lg:text-3xl font-bold text-gray-900 truncate">
+                <p className="text-muted-foreground text-sm font-medium truncate">Portfolio Value</p>
+                <p className="text-2xl lg:text-3xl font-bold text-foreground truncate">
                   {formatCurrency(stats?.portfolioValue || '0')}
                 </p>
                 <p className="text-green-600 text-sm mt-1 truncate">
@@ -229,8 +229,8 @@ export default function Dashboard() {
                       <CheckCircle className="text-green-600" size={16} />
                     </div>
                     <div className="flex-1">
-                      <p className="text-sm font-medium text-gray-900">{activity.description}</p>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-sm font-medium text-foreground">{activity.description}</p>
+                      <p className="text-xs text-muted-foreground">
                         {activity.activityType} • {new Date(activity.createdAt).toLocaleDateString()}
                       </p>
                     </div>
@@ -242,9 +242,9 @@ export default function Dashboard() {
               </div>
             ) : (
               <div className="text-center py-8">
-                <FileText className="mx-auto h-12 w-12 text-gray-400" />
-                <h3 className="mt-2 text-sm font-medium text-gray-900">No recent activity</h3>
-                <p className="mt-1 text-sm text-gray-500">Get started by filing your first patent.</p>
+                <FileText className="mx-auto h-12 w-12 text-muted-foreground" />
+                <h3 className="mt-2 text-sm font-medium text-foreground">No recent activity</h3>
+                <p className="mt-1 text-sm text-muted-foreground">Get started by filing your first patent.</p>
                 <div className="mt-6">
                   <Button onClick={() => navigate('/patents/file')}>
                     <Plus className="mr-2" size={16} />
@@ -258,63 +258,63 @@ export default function Dashboard() {
 
         {/* Quick Actions */}
         <Card>
-          <CardHeader className="border-b border-gray-200">
+          <CardHeader className="border-b border-border">
             <CardTitle>Quick Actions</CardTitle>
           </CardHeader>
           <CardContent className="p-6 space-y-4">
             <Button 
               variant="outline" 
-              className="w-full justify-start h-auto p-4 border-2 border-dashed border-gray-300 hover:border-primary hover:bg-primary/5"
+              className="w-full justify-start h-auto p-4 border-2 border-dashed border-muted hover:border-primary hover:bg-primary/5"
               onClick={() => navigate('/patents/file')}
             >
               <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
                 <Plus className="text-primary" size={20} />
               </div>
               <div className="text-left min-w-0 flex-1">
-                <p className="font-medium text-gray-900 truncate">File New Patent</p>
-                <p className="text-sm text-gray-500 truncate">Upload and submit new IP</p>
+                <p className="font-medium text-foreground truncate">File New Patent</p>
+                <p className="text-sm text-muted-foreground truncate">Upload and submit new IP</p>
               </div>
             </Button>
 
             <Button 
               variant="outline" 
-              className="w-full justify-start h-auto p-4 border border-gray-200 hover:border-primary hover:bg-primary/5"
+              className="w-full justify-start h-auto p-4 border border-border hover:border-primary hover:bg-primary/5"
               onClick={() => navigate('/ai/prior-art-search')}
             >
               <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
                 <Search className="text-blue-600" size={20} />
               </div>
               <div className="text-left min-w-0 flex-1">
-                <p className="font-medium text-gray-900 truncate">Prior Art Search</p>
-                <p className="text-sm text-gray-500 truncate">AI-powered similarity check</p>
+                <p className="font-medium text-foreground truncate">Prior Art Search</p>
+                <p className="text-sm text-muted-foreground truncate">AI-powered similarity check</p>
               </div>
             </Button>
 
             <Button 
               variant="outline" 
-              className="w-full justify-start h-auto p-4 border border-gray-200 hover:border-primary hover:bg-primary/5"
+              className="w-full justify-start h-auto p-4 border border-border hover:border-primary hover:bg-primary/5"
               onClick={() => navigate('/patents/verify')}
             >
               <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
                 <Shield className="text-green-600" size={20} />
               </div>
               <div className="text-left min-w-0 flex-1">
-                <p className="font-medium text-gray-900 truncate">Verify Patent</p>
-                <p className="text-sm text-gray-500 truncate">Blockchain verification</p>
+                <p className="font-medium text-foreground truncate">Verify Patent</p>
+                <p className="text-sm text-muted-foreground truncate">Blockchain verification</p>
               </div>
             </Button>
 
             <Button 
               variant="outline" 
-              className="w-full justify-start h-auto p-4 border border-gray-200 hover:border-primary hover:bg-primary/5"
+              className="w-full justify-start h-auto p-4 border border-border hover:border-primary hover:bg-primary/5"
               onClick={() => navigate('/patents/drafting')}
             >
               <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center mr-4 flex-shrink-0">
                 <Edit3 className="text-purple-600" size={20} />
               </div>
               <div className="text-left min-w-0 flex-1">
-                <p className="font-medium text-gray-900 truncate">AI Drafting</p>
-                <p className="text-sm text-gray-500 truncate">Generate patent documents</p>
+                <p className="font-medium text-foreground truncate">AI Drafting</p>
+                <p className="text-sm text-muted-foreground truncate">Generate patent documents</p>
               </div>
             </Button>
           </CardContent>
@@ -335,13 +335,13 @@ export default function Dashboard() {
                   <div key={category.category} className="flex items-center justify-between">
                     <div className="flex items-center space-x-3 min-w-0 flex-1">
                       <div className={`w-4 h-4 rounded-full flex-shrink-0 ${getCategoryColor(category.category)}`}></div>
-                      <span className="text-sm font-medium text-gray-700 truncate">
+                      <span className="text-sm font-medium text-foreground truncate">
                         {formatCategoryName(category.category)}
                       </span>
                     </div>
                     <div className="flex items-center space-x-2 flex-shrink-0">
                       <Progress value={category.percentage} className="w-24 lg:w-32" />
-                      <span className="text-sm font-medium text-gray-600 w-8 lg:w-10 text-right">
+                      <span className="text-sm font-medium text-muted-foreground w-8 lg:w-10 text-right">
                         {category.percentage}%
                       </span>
                     </div>
@@ -350,9 +350,9 @@ export default function Dashboard() {
               </div>
             ) : (
               <div className="text-center py-8">
-                <BarChart3 className="mx-auto h-12 w-12 text-gray-400" />
-                <h3 className="mt-2 text-sm font-medium text-gray-900">No category data</h3>
-                <p className="mt-1 text-sm text-gray-500">File patents to see category breakdown.</p>
+                <BarChart3 className="mx-auto h-12 w-12 text-muted-foreground" />
+                <h3 className="mt-2 text-sm font-medium text-foreground">No category data</h3>
+                <p className="mt-1 text-sm text-muted-foreground">File patents to see category breakdown.</p>
               </div>
             )}
           </CardContent>
@@ -360,7 +360,7 @@ export default function Dashboard() {
 
         {/* AI Insights */}
         <Card>
-          <CardHeader className="border-b border-gray-200">
+          <CardHeader className="border-b border-border">
             <div className="flex items-center justify-between">
               <CardTitle>AI Insights</CardTitle>
               <Badge variant="secondary" className="bg-purple-100 text-purple-800">
@@ -370,14 +370,14 @@ export default function Dashboard() {
             </div>
           </CardHeader>
           <CardContent className="p-6 space-y-4">
-            <div className="bg-blue-50 p-4 rounded-lg">
+            <div className="bg-blue-50 dark:bg-blue-950/20 p-4 rounded-lg">
               <div className="flex items-start space-x-3">
                 <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
                   <Lightbulb className="text-blue-600" size={16} />
                 </div>
                 <div>
-                  <h4 className="font-medium text-gray-900 mb-1">Innovation Opportunity</h4>
-                  <p className="text-sm text-gray-700">
+                  <h4 className="font-medium text-foreground mb-1">Innovation Opportunity</h4>
+                  <p className="text-sm text-muted-foreground">
                     AI detected a gap in quantum computing patents for healthcare applications. 
                     Consider expanding your portfolio in this area.
                   </p>
@@ -385,14 +385,14 @@ export default function Dashboard() {
               </div>
             </div>
 
-            <div className="bg-yellow-50 p-4 rounded-lg">
+            <div className="bg-yellow-50 dark:bg-yellow-950/20 p-4 rounded-lg">
               <div className="flex items-start space-x-3">
                 <div className="w-8 h-8 bg-yellow-100 rounded-full flex items-center justify-center flex-shrink-0">
                   <AlertTriangle className="text-yellow-600" size={16} />
                 </div>
                 <div>
-                  <h4 className="font-medium text-gray-900 mb-1">Portfolio Health</h4>
-                  <p className="text-sm text-gray-700">
+                  <h4 className="font-medium text-foreground mb-1">Portfolio Health</h4>
+                  <p className="text-sm text-muted-foreground">
                     Your patent portfolio shows strong diversity across technology sectors. 
                     Consider filing continuation patents for key innovations.
                   </p>
@@ -400,14 +400,14 @@ export default function Dashboard() {
               </div>
             </div>
 
-            <div className="bg-green-50 p-4 rounded-lg">
+            <div className="bg-green-50 dark:bg-green-950/20 p-4 rounded-lg">
               <div className="flex items-start space-x-3">
                 <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
                   <BarChart3 className="text-green-600" size={16} />
                 </div>
                 <div>
-                  <h4 className="font-medium text-gray-900 mb-1">Portfolio Performance</h4>
-                  <p className="text-sm text-gray-700">
+                  <h4 className="font-medium text-foreground mb-1">Portfolio Performance</h4>
+                  <p className="text-sm text-muted-foreground">
                     Your patents show strong commercial potential. 
                     Consider licensing opportunities to maximize revenue.
                   </p>

@@ -254,9 +254,9 @@ export default function PatentAnalytics() {
         <Card>
           <CardContent className="pt-6">
             <div className="text-center py-12">
-              <Brain className="mx-auto h-12 w-12 text-gray-400" />
-              <h3 className="mt-2 text-sm font-medium text-gray-900">Unable to load analytics</h3>
-              <p className="mt-1 text-sm text-gray-500">
+              <Brain className="mx-auto h-12 w-12 text-muted-foreground" />
+              <h3 className="mt-2 text-sm font-medium text-foreground">Unable to load analytics</h3>
+              <p className="mt-1 text-sm text-muted-foreground">
                 There was an error loading your patent data. Please try refreshing the page.
               </p>
               <div className="mt-6">

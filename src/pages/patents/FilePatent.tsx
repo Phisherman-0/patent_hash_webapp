@@ -142,8 +142,8 @@ export default function FilePatent() {
   return (
     <div className="max-w-4xl mx-auto space-y-8">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">File New Patent</h1>
-        <p className="text-gray-600 mt-2">
+        <h1 className="text-3xl font-bold text-foreground">File New Patent</h1>
+        <p className="text-muted-foreground mt-2">
           Submit your intellectual property for blockchain-secured protection and AI analysis.
         </p>
       </div>
@@ -233,23 +233,23 @@ export default function FilePatent() {
                   {/* File Upload */}
                   <div className="space-y-4">
                     <div>
-                      <label className="text-sm font-medium text-gray-700">Supporting Documents</label>
-                      <p className="text-sm text-gray-500 mb-2">
+                      <label className="text-sm font-medium text-foreground">Supporting Documents</label>
+                      <p className="text-sm text-muted-foreground mb-2">
                         Upload patent documents, diagrams, technical specifications, etc.
                       </p>
                     </div>
                     
                     <div 
-                      className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-primary/50 hover:bg-gray-50 transition-colors cursor-pointer"
+                      className="border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-primary/50 hover:bg-muted transition-colors cursor-pointer"
                       onClick={() => document.getElementById('file-upload')?.click()}
                     >
-                      <Upload className="mx-auto h-12 w-12 text-gray-400" />
+                      <Upload className="mx-auto h-12 w-12 text-muted-foreground" />
                       <div className="mt-4">
                         <div className="cursor-pointer">
-                          <span className="mt-2 block text-sm font-medium text-gray-900">
+                          <span className="mt-2 block text-sm font-medium text-foreground">
                             Upload files or drag and drop
                           </span>
-                          <span className="block text-sm text-gray-500">
+                          <span className="block text-sm text-muted-foreground">
                             PDF, DOC, DOCX up to 50MB each
                           </span>
                         </div>
@@ -268,7 +268,7 @@ export default function FilePatent() {
                     {/* Selected Files */}
                     {selectedFiles.length > 0 && (
                       <div className="space-y-2">
-                        <h4 className="text-sm font-medium text-gray-700">Selected Files:</h4>
+                        <h4 className="text-sm font-medium text-foreground">Selected Files:</h4>
                         <div className="max-h-40 overflow-y-auto space-y-2">
                           {selectedFiles.map((file, index) => {
                             const fileExtension = file.name.split('.').pop()?.toLowerCase() || '';
@@ -276,19 +276,19 @@ export default function FilePatent() {
                             const FileIcon = isImage ? Image : FileText;
                             
                             return (
-                              <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border">
+                              <div key={index} className="flex items-center justify-between p-3 bg-muted rounded-lg border">
                                 <div className="flex items-center space-x-3 flex-1 min-w-0">
-                                  <FileIcon size={16} className={`flex-shrink-0 ${isImage ? 'text-green-500' : 'text-gray-400'}`} />
+                                  <FileIcon size={16} className={`flex-shrink-0 ${isImage ? 'text-green-500' : 'text-muted-foreground'}`} />
                                   <div className="flex-1 min-w-0">
                                     <div className="flex items-center space-x-2">
-                                      <span className="text-sm font-medium text-gray-700 truncate">
+                                      <span className="text-sm font-medium text-foreground truncate">
                                         {file.name}
                                       </span>
                                       <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full flex-shrink-0">
                                         {fileExtension.toUpperCase()}
                                       </span>
                                     </div>
-                                    <span className="text-xs text-gray-500">
+                                    <span className="text-xs text-muted-foreground">
                                       {(file.size / 1024 / 1024).toFixed(2)} MB
                                     </span>
                                   </div>
@@ -338,7 +338,7 @@ export default function FilePatent() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="text-sm text-gray-600">
+              <div className="text-sm text-muted-foreground">
                 Your patent will be automatically analyzed for:
               </div>
               <ul className="space-y-2 text-sm">
@@ -370,7 +370,7 @@ export default function FilePatent() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="text-sm text-gray-600">
+              <div className="text-sm text-muted-foreground">
                 Your patent will be secured with:
               </div>
               <ul className="space-y-2 text-sm">

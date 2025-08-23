@@ -90,12 +90,12 @@ export default function AuthPage() {
       
       <div className="min-h-screen bg-white flex items-center justify-center p-4">
         <div className="w-full max-w-md">
-          <Card className="shadow-lg border border-gray-100">
+          <Card className="shadow-lg border border-border">
             <CardHeader className="text-center pb-6">
-              <h1 className="text-4xl font-bold text-gray-900 mb-2">
+              <h1 className="text-4xl font-bold text-foreground mb-2">
                 Patent <span className="text-orange-500">Hash</span>
               </h1>
-              <CardDescription className="text-gray-600">
+              <CardDescription className="text-muted-foreground">
                 Sign in to continue
               </CardDescription>
             </CardHeader>
@@ -107,7 +107,7 @@ export default function AuthPage() {
                 )}
 
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-                  <TabsList className="grid w-full grid-cols-2 bg-gray-50 p-1 rounded-lg">
+                  <TabsList className="grid w-full grid-cols-2 bg-muted p-1 rounded-lg">
                     <TabsTrigger 
                       value="login" 
                       data-testid="tab-login"
@@ -133,14 +133,14 @@ export default function AuthPage() {
                           name="email"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="text-gray-700 font-medium">Email</FormLabel>
+                              <FormLabel className="text-foreground font-medium">Email</FormLabel>
                               <FormControl>
                                 <div className="relative">
-                                  <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                                  <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                                   <Input 
                                     type="email"
                                     placeholder="Enter your email"
-                                    className="pl-10 h-10 border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                                    className="pl-10 h-10 border-border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                                     data-testid="input-login-email"
                                     {...field}
                                   />
@@ -156,20 +156,20 @@ export default function AuthPage() {
                           name="password"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="text-gray-700 font-medium">Password</FormLabel>
+                              <FormLabel className="text-foreground font-medium">Password</FormLabel>
                               <FormControl>
                                 <div className="relative">
-                                  <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                                  <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                                   <Input 
                                     type={showLoginPassword ? "text" : "password"}
                                     placeholder="Enter your password"
-                                    className="pl-10 pr-10 h-10 border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                                    className="pl-10 pr-10 h-10 border-border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                                     data-testid="input-login-password"
                                     {...field}
                                   />
                                   <button
                                     type="button"
-                                    className="absolute right-3 top-3 h-4 w-4 text-gray-400 hover:text-gray-600"
+                                    className="absolute right-3 top-3 h-4 w-4 text-muted-foreground hover:text-foreground"
                                     onClick={() => setShowLoginPassword(!showLoginPassword)}
                                   >
                                     {showLoginPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -210,13 +210,13 @@ export default function AuthPage() {
                             name="firstName"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel className="text-gray-700 font-medium">First Name</FormLabel>
+                                <FormLabel className="text-foreground font-medium">First Name</FormLabel>
                                 <FormControl>
                                   <div className="relative">
-                                    <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                                    <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                                     <Input 
                                       placeholder="First name"
-                                      className="pl-10 h-10 border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                                      className="pl-10 h-10 border-border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                                       data-testid="input-register-firstname"
                                       {...field}
                                     />
@@ -232,13 +232,13 @@ export default function AuthPage() {
                             name="lastName"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel className="text-gray-700 font-medium">Last Name</FormLabel>
+                                <FormLabel className="text-foreground font-medium">Last Name</FormLabel>
                                 <FormControl>
                                   <div className="relative">
-                                    <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                                    <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                                     <Input 
                                       placeholder="Last name"
-                                      className="pl-10 h-10 border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                                      className="pl-10 h-10 border-border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                                       data-testid="input-register-lastname"
                                       {...field}
                                     />
@@ -255,14 +255,14 @@ export default function AuthPage() {
                           name="email"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="text-gray-700 font-medium">Email</FormLabel>
+                              <FormLabel className="text-foreground font-medium">Email</FormLabel>
                               <FormControl>
                                 <div className="relative">
-                                  <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                                  <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                                   <Input 
                                     type="email"
                                     placeholder="Enter your email"
-                                    className="pl-10 h-10 border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                                    className="pl-10 h-10 border-border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                                     data-testid="input-register-email"
                                     {...field}
                                   />
@@ -278,20 +278,20 @@ export default function AuthPage() {
                           name="password"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="text-gray-700 font-medium">Password</FormLabel>
+                              <FormLabel className="text-foreground font-medium">Password</FormLabel>
                               <FormControl>
                                 <div className="relative">
-                                  <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                                  <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                                   <Input 
                                     type={showRegisterPassword ? "text" : "password"}
                                     placeholder="Create a password"
-                                    className="pl-10 pr-10 h-10 border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                                    className="pl-10 pr-10 h-10 border-border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                                     data-testid="input-register-password"
                                     {...field}
                                   />
                                   <button
                                     type="button"
-                                    className="absolute right-3 top-3 h-4 w-4 text-gray-400 hover:text-gray-600"
+                                    className="absolute right-3 top-3 h-4 w-4 text-muted-foreground hover:text-foreground"
                                     onClick={() => setShowRegisterPassword(!showRegisterPassword)}
                                   >
                                     {showRegisterPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -308,20 +308,20 @@ export default function AuthPage() {
                           name="confirmPassword"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel className="text-gray-700 font-medium">Confirm Password</FormLabel>
+                              <FormLabel className="text-foreground font-medium">Confirm Password</FormLabel>
                               <FormControl>
                                 <div className="relative">
-                                  <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                                  <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                                   <Input 
                                     type={showConfirmPassword ? "text" : "password"}
                                     placeholder="Confirm your password"
-                                    className="pl-10 pr-10 h-10 border-gray-200 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+                                    className="pl-10 pr-10 h-10 border-border rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
                                     data-testid="input-register-confirm-password"
                                     {...field}
                                   />
                                   <button
                                     type="button"
-                                    className="absolute right-3 top-3 h-4 w-4 text-gray-400 hover:text-gray-600"
+                                    className="absolute right-3 top-3 h-4 w-4 text-muted-foreground hover:text-foreground"
                                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                                   >
                                     {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}

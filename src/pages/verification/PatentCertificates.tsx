@@ -293,7 +293,7 @@ export default function PatentCertificates() {
                               <p className="text-lg text-orange-700 font-semibold tracking-wide">
                                 BLOCKCHAIN VERIFICATION AUTHORITY
                               </p>
-                              <p className="text-sm text-gray-600 uppercase tracking-widest">
+                              <p className="text-sm text-muted-foreground uppercase tracking-widest">
                                 Hedera Hashgraph Network • Patent Hash Platform
                               </p>
                             </div>
@@ -301,7 +301,7 @@ export default function PatentCertificates() {
 
                           {/* Official Declaration */}
                           <div className="relative text-center space-y-4 px-12">
-                            <p className="text-lg text-gray-800 leading-relaxed" style={{fontFamily: 'serif'}}>
+                            <p className="text-lg text-foreground leading-relaxed" style={{fontFamily: 'serif'}}>
                               <em>This is to certify that the invention described herein has been duly registered and verified on the blockchain network, 
                               establishing immutable proof of intellectual property rights and timestamp of creation.</em>
                             </p>
@@ -321,22 +321,22 @@ export default function PatentCertificates() {
                               <div className="space-y-4">
                                 <div className="border-b border-orange-200 pb-2">
                                   <span className="text-sm font-semibold text-orange-700 uppercase tracking-wide">Patent Title</span>
-                                  <p className="text-lg font-bold text-gray-800 mt-1" style={{fontFamily: 'serif'}}>{patent.title}</p>
+                                  <p className="text-lg font-bold text-foreground mt-1" style={{fontFamily: 'serif'}}>{patent.title}</p>
                                 </div>
                                 
                                 <div className="border-b border-orange-200 pb-2">
                                   <span className="text-sm font-semibold text-orange-700 uppercase tracking-wide">Patent Number</span>
-                                  <p className="text-base font-mono text-gray-800 mt-1">US-BLK-{patent.id.substring(0, 8).toUpperCase()}</p>
+                                  <p className="text-base font-mono text-foreground mt-1">US-BLK-{patent.id.substring(0, 8).toUpperCase()}</p>
                                 </div>
                                 
                                 <div className="border-b border-orange-200 pb-2">
                                   <span className="text-sm font-semibold text-orange-700 uppercase tracking-wide">Classification</span>
-                                  <p className="text-base text-gray-800 mt-1 capitalize">{patent.category?.replace('_', ' ') || 'General Technology'}</p>
+                                  <p className="text-base text-foreground mt-1 capitalize">{patent.category?.replace('_', ' ') || 'General Technology'}</p>
                                 </div>
                                 
                                 <div className="border-b border-orange-200 pb-2">
                                   <span className="text-sm font-semibold text-orange-700 uppercase tracking-wide">Filing Date</span>
-                                  <p className="text-base text-gray-800 mt-1">{new Date(patent.createdAt).toLocaleDateString('en-US', { 
+                                  <p className="text-base text-foreground mt-1">{new Date(patent.createdAt).toLocaleDateString('en-US', { 
                                     year: 'numeric', 
                                     month: 'long', 
                                     day: 'numeric' 
@@ -351,26 +351,26 @@ export default function PatentCertificates() {
                                     <QrCode className="h-16 w-16 text-orange-500" />
                                   </div>
                                   <p className="text-xs font-semibold text-orange-700 uppercase tracking-wide">Blockchain Verification</p>
-                                  <p className="text-xs text-gray-600 mt-1">Scan for instant verification</p>
+                                  <p className="text-xs text-muted-foreground mt-1">Scan for instant verification</p>
                                 </div>
                                 
                                 <div className="bg-white p-4 rounded border border-orange-200">
                                   <h4 className="text-sm font-bold text-orange-800 mb-3 uppercase tracking-wide">Blockchain Registry</h4>
                                   <div className="space-y-2 text-xs">
                                     <div className="flex justify-between">
-                                      <span className="text-gray-600">Network:</span>
+                                      <span className="text-muted-foreground">Network:</span>
                                       <span className="font-mono">Hedera Hashgraph</span>
                                     </div>
                                     <div className="flex justify-between">
-                                      <span className="text-gray-600">Topic ID:</span>
+                                      <span className="text-muted-foreground">Topic ID:</span>
                                       <span className="font-mono">{patent.hederaTopicId || 'Pending'}</span>
                                     </div>
                                     <div className="flex justify-between">
-                                      <span className="text-gray-600">NFT Token:</span>
+                                      <span className="text-muted-foreground">NFT Token:</span>
                                       <span className="font-mono">{patent.hederaNftId ? 'Minted' : 'Available'}</span>
                                     </div>
                                     <div className="flex justify-between">
-                                      <span className="text-gray-600">Hash:</span>
+                                      <span className="text-muted-foreground">Hash:</span>
                                       <span className="font-mono text-xs">{patent.hashValue?.substring(0, 16) || 'Processing'}...</span>
                                     </div>
                                   </div>
@@ -389,9 +389,9 @@ export default function PatentCertificates() {
                                 <div className="w-20 h-20 bg-gradient-to-br from-orange-400 to-orange-600 rounded-full flex items-center justify-center mx-auto mb-3 shadow-lg">
                                   <Shield className="h-10 w-10 text-white" />
                                 </div>
-                                <div className="border-t-2 border-gray-800 pt-2 mt-4">
-                                  <p className="text-sm font-bold text-gray-800">Digital Authority</p>
-                                  <p className="text-xs text-gray-600">Blockchain Verified</p>
+                                <div className="border-t-2 border-foreground pt-2 mt-4">
+                                  <p className="text-sm font-bold text-foreground">Digital Authority</p>
+                                  <p className="text-xs text-muted-foreground">Blockchain Verified</p>
                                 </div>
                               </div>
 
@@ -401,7 +401,7 @@ export default function PatentCertificates() {
                                   <h3 className="text-lg font-bold text-orange-800 mb-2" style={{fontFamily: 'serif'}}>
                                     CERTIFICATE VALIDITY
                                   </h3>
-                                  <div className="space-y-1 text-sm text-gray-700">
+                                  <div className="space-y-1 text-sm text-muted-foreground">
                                     <p><strong>Issue Date:</strong> {new Date().toLocaleDateString('en-US', { 
                                       year: 'numeric', 
                                       month: 'long', 
@@ -423,41 +423,41 @@ export default function PatentCertificates() {
                                   </div>
                                   <div className="absolute inset-1 border-2 border-orange-300 rounded-full"></div>
                                 </div>
-                                <div className="border-t-2 border-gray-800 pt-2 mt-4">
-                                  <p className="text-sm font-bold text-gray-800">Patent Hash Authority</p>
-                                  <p className="text-xs text-gray-600">Blockchain Registry</p>
+                                <div className="border-t-2 border-foreground pt-2 mt-4">
+                                  <p className="text-sm font-bold text-foreground">Patent Hash Authority</p>
+                                  <p className="text-xs text-muted-foreground">Blockchain Registry</p>
                                 </div>
                               </div>
                             </div>
                           </div>
 
                           {/* Legal Footer */}
-                          <div className="relative bg-gray-50 border-t-2 border-orange-400 p-6 mx-4">
+                          <div className="relative bg-muted border-t-2 border-orange-400 p-6 mx-4">
                             <div className="text-center space-y-3">
                               <div className="flex items-center justify-center gap-2">
                                 <Shield className="h-4 w-4 text-orange-600" />
-                                <span className="text-sm font-bold text-gray-800 uppercase tracking-wide">Legal Notice & Verification</span>
+                                <span className="text-sm font-bold text-foreground uppercase tracking-wide">Legal Notice & Verification</span>
                               </div>
                               
-                              <p className="text-xs text-gray-700 leading-relaxed max-w-4xl mx-auto" style={{fontFamily: 'serif'}}>
+                              <p className="text-xs text-muted-foreground leading-relaxed max-w-4xl mx-auto" style={{fontFamily: 'serif'}}>
                                 This certificate constitutes official recognition of the patent registration on the Hedera Hashgraph blockchain network. 
                                 The cryptographic hash and distributed ledger technology provide immutable proof of the invention's timestamp and ownership. 
                                 This document serves as legal evidence of intellectual property rights and may be used in legal proceedings. 
                                 Verification can be performed independently through the blockchain network using the provided identifiers.
                               </p>
                               
-                              <div className="flex items-center justify-center gap-6 pt-4 border-t border-gray-300">
+                              <div className="flex items-center justify-center gap-6 pt-4 border-t border-border">
                                 <div className="text-center">
-                                  <p className="text-xs font-semibold text-gray-600">Verification URL</p>
+                                  <p className="text-xs font-semibold text-muted-foreground">Verification URL</p>
                                   <p className="text-xs font-mono text-orange-700">verify.patenthash.com/cert/{patent.id.substring(0, 8)}</p>
                                 </div>
                                 <div className="text-center">
-                                  <p className="text-xs font-semibold text-gray-600">Blockchain Network</p>
-                                  <p className="text-xs text-gray-700">Hedera Hashgraph Mainnet</p>
+                                  <p className="text-xs font-semibold text-muted-foreground">Blockchain Network</p>
+                                  <p className="text-xs text-muted-foreground">Hedera Hashgraph Mainnet</p>
                                 </div>
                                 <div className="text-center">
-                                  <p className="text-xs font-semibold text-gray-600">Registry Authority</p>
-                                  <p className="text-xs text-gray-700">Patent Hash Platform</p>
+                                  <p className="text-xs font-semibold text-muted-foreground">Registry Authority</p>
+                                  <p className="text-xs text-muted-foreground">Patent Hash Platform</p>
                                 </div>
                               </div>
                             </div>

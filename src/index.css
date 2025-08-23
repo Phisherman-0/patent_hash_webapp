@@ -102,11 +102,11 @@
   }
   
   .sidebar-nav-item:not(.active) {
-    @apply text-gray-700 hover:bg-gray-100;
+    @apply text-foreground hover:bg-accent;
   }
   
   .sidebar-nav-item:not(.active) .lucide {
-    @apply text-gray-400 group-hover:text-gray-600;
+    @apply text-muted-foreground group-hover:text-foreground;
   }
   
   .sidebar-nav-item.active .lucide {

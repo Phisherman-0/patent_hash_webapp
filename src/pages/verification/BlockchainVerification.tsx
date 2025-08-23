@@ -107,8 +107,8 @@ export default function BlockchainVerification() {
     <div className="max-w-6xl mx-auto space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Blockchain Verification</h1>
-        <p className="text-gray-600 mt-2">
+        <h1 className="text-3xl font-bold text-foreground">Blockchain Verification</h1>
+        <p className="text-muted-foreground mt-2">
           Verify patent integrity and ownership using Hedera blockchain technology.
         </p>
       </div>
@@ -128,7 +128,7 @@ export default function BlockchainVerification() {
             </CardHeader>
             <CardContent className="space-y-6">
               <div>
-                <label className="text-sm font-medium text-gray-700 mb-2 block">
+                <label className="text-sm font-medium text-foreground mb-2 block">
                   Select Patent
                 </label>
                 <Select value={selectedPatentId} onValueChange={setSelectedPatentId}>
@@ -144,7 +144,7 @@ export default function BlockchainVerification() {
                   </SelectContent>
                 </Select>
                 {blockchainSecuredPatents.length === 0 && (
-                  <p className="text-sm text-gray-500 mt-2">
+                  <p className="text-sm text-muted-foreground mt-2">
                     No blockchain-secured patents found. File a patent to get started.
                   </p>
                 )}
@@ -199,7 +199,7 @@ export default function BlockchainVerification() {
                         {verificationResult.message}
                       </p>
                       {verificationResult.timestamp && (
-                        <p className="text-xs text-gray-500 mt-2">
+                        <p className="text-xs text-muted-foreground mt-2">
                           Verified at: {formatDate(verificationResult.timestamp)}
                         </p>
                       )}
@@ -245,31 +245,31 @@ export default function BlockchainVerification() {
             <>
               {/* Patent Information */}
               <Card>
-                <CardHeader className="border-b border-gray-200">
+                <CardHeader className="border-b border-border">
                   <CardTitle>Patent Information</CardTitle>
                 </CardHeader>
                 <CardContent className="p-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <label className="text-sm font-medium text-gray-500">Title</label>
-                      <p className="text-sm text-gray-900 mt-1">{selectedPatent.title}</p>
+                      <label className="text-sm font-medium text-muted-foreground">Title</label>
+                      <p className="text-sm text-foreground mt-1">{selectedPatent.title}</p>
                     </div>
                     <div>
-                      <label className="text-sm font-medium text-gray-500">Status</label>
+                      <label className="text-sm font-medium text-muted-foreground">Status</label>
                       <div className="mt-1">
                         <Badge className={
                           selectedPatent.status === 'approved' ? 'bg-green-100 text-green-800' :
                           selectedPatent.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                          'bg-gray-100 text-gray-800'
+                          'bg-muted text-muted-foreground'
                         }>
                           {selectedPatent.status.charAt(0).toUpperCase() + selectedPatent.status.slice(1)}
                         </Badge>
                       </div>
                     </div>
                     <div>
-                      <label className="text-sm font-medium text-gray-500">Patent ID</label>
+                      <label className="text-sm font-medium text-muted-foreground">Patent ID</label>
                       <div className="flex items-center space-x-2 mt-1">
-                        <code className="text-sm bg-gray-100 px-2 py-1 rounded">
+                        <code className="text-sm bg-muted px-2 py-1 rounded">
                           {selectedPatent.id}
                         </code>
                         <Button
@@ -282,8 +282,8 @@ export default function BlockchainVerification() {
                       </div>
                     </div>
                     <div>
-                      <label className="text-sm font-medium text-gray-500">Created</label>
-                      <p className="text-sm text-gray-900 mt-1">
+                      <label className="text-sm font-medium text-muted-foreground">Created</label>
+                      <p className="text-sm text-foreground mt-1">
                         {formatDate(selectedPatent.createdAt)}
                       </p>
                     </div>
@@ -293,7 +293,7 @@ export default function BlockchainVerification() {
 
               {/* Blockchain Details */}
               <Card>
-                <CardHeader className="border-b border-gray-200">
+                <CardHeader className="border-b border-border">
                   <CardTitle className="flex items-center">
                     <LinkIcon className="mr-2" size={20} />
                     Blockchain Details
@@ -303,9 +303,9 @@ export default function BlockchainVerification() {
                   {selectedPatent.hederaTopicId ? (
                     <div className="grid grid-cols-1 gap-6">
                       <div>
-                        <label className="text-sm font-medium text-gray-500">Hedera Topic ID</label>
+                        <label className="text-sm font-medium text-muted-foreground">Hedera Topic ID</label>
                         <div className="flex items-center space-x-2 mt-1">
-                          <code className="text-sm bg-gray-100 px-2 py-1 rounded font-mono">
+                          <code className="text-sm bg-muted px-2 py-1 rounded font-mono">
                             {selectedPatent.hederaTopicId}
                           </code>
                           <Button
@@ -323,9 +323,9 @@ export default function BlockchainVerification() {
 
                       {selectedPatent.hederaMessageId && (
                         <div>
-                          <label className="text-sm font-medium text-gray-500">Message ID</label>
+                          <label className="text-sm font-medium text-muted-foreground">Message ID</label>
                           <div className="flex items-center space-x-2 mt-1">
-                            <code className="text-sm bg-gray-100 px-2 py-1 rounded font-mono">
+                            <code className="text-sm bg-muted px-2 py-1 rounded font-mono">
                               {selectedPatent.hederaMessageId}
                             </code>
                             <Button
@@ -341,9 +341,9 @@ export default function BlockchainVerification() {
 
                       {selectedPatent.hashValue && (
                         <div>
-                          <label className="text-sm font-medium text-gray-500">SHA-256 Hash</label>
+                          <label className="text-sm font-medium text-muted-foreground">SHA-256 Hash</label>
                           <div className="flex items-center space-x-2 mt-1">
-                            <code className="text-sm bg-gray-100 px-2 py-1 rounded font-mono break-all">
+                            <code className="text-sm bg-muted px-2 py-1 rounded font-mono break-all">
                               {selectedPatent.hashValue}
                             </code>
                             <Button
@@ -359,9 +359,9 @@ export default function BlockchainVerification() {
 
                       {selectedPatent.hederaNftId && (
                         <div>
-                          <label className="text-sm font-medium text-gray-500">NFT Token ID</label>
+                          <label className="text-sm font-medium text-muted-foreground">NFT Token ID</label>
                           <div className="flex items-center space-x-2 mt-1">
-                            <code className="text-sm bg-gray-100 px-2 py-1 rounded font-mono">
+                            <code className="text-sm bg-muted px-2 py-1 rounded font-mono">
                               {selectedPatent.hederaNftId}
                             </code>
                             <Button
@@ -418,9 +418,9 @@ export default function BlockchainVerification() {
           ) : (
             <Card>
               <CardContent className="p-12 text-center">
-                <Shield className="mx-auto h-12 w-12 text-gray-400" />
-                <h3 className="mt-2 text-sm font-medium text-gray-900">Select a Patent</h3>
-                <p className="mt-1 text-sm text-gray-500">
+                <Shield className="mx-auto h-12 w-12 text-muted-foreground" />
+                <h3 className="mt-2 text-sm font-medium text-foreground">Select a Patent</h3>
+                <p className="mt-1 text-sm text-muted-foreground">
                   Choose a patent from the dropdown to view its blockchain verification details.
                 </p>
               </CardContent>
@@ -432,7 +432,7 @@ export default function BlockchainVerification() {
       {/* Blockchain Secured Patents List */}
       {blockchainSecuredPatents.length > 0 && (
         <Card>
-          <CardHeader className="border-b border-gray-200">
+          <CardHeader className="border-b border-border">
             <CardTitle>Blockchain Secured Patents</CardTitle>
             <CardDescription>
               All your patents that are secured on the Hedera blockchain
@@ -441,14 +441,14 @@ export default function BlockchainVerification() {
           <CardContent className="p-6">
             <div className="space-y-4">
               {blockchainSecuredPatents.map((patent: Patent) => (
-                <div key={patent.id} className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+                <div key={patent.id} className="flex items-center justify-between p-4 border border-border rounded-lg">
                   <div className="flex items-center space-x-3">
                     <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
                       <Shield className="text-green-600" size={20} />
                     </div>
                     <div>
-                      <h4 className="font-medium text-gray-900">{patent.title}</h4>
-                      <p className="text-sm text-gray-500">
+                      <h4 className="font-medium text-foreground">{patent.title}</h4>
+                      <p className="text-sm text-muted-foreground">
                         Topic: {patent.hederaTopicId}
                       </p>
                     </div>

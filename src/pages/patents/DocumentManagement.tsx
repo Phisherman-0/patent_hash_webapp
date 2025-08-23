@@ -14,25 +14,9 @@ import {
   Trash2
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { documentAPI, patentAPI, PatentDocument, Patent } from '@/lib/apiService';
+import { useAppSelector } from '@/hooks/useAppDispatch';
 
-interface PatentDocument {
-  id: string;
-  patentId: string;
-  userId: string;
-  fileName: string;
-  filePath: string;
-  fileType: string;
-  fileSize: number;
-  hashValue: string;
-  createdAt: string;
-}
-
-interface Patent {
-  id: string;
-  title: string;
-  status: string;
-  category: string;
-}
 
 export default function DocumentManagement() {
   const [documents, setDocuments] = useState<PatentDocument[]>([]);
@@ -42,19 +26,12 @@ export default function DocumentManagement() {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [selectedPatent, setSelectedPatent] = useState('all');
   const { toast } = useToast();
+  const { user, isInitialized, isLoading: authLoading } = useAppSelector((state) => state.auth);
 
   // Fetch user documents
   const fetchDocuments = async () => {
     try {
-      const response = await fetch('/api/documents/user', {
-        credentials: 'include'
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to fetch documents');
-      }
-      
-      const data = await response.json();
+      const data = await documentAPI.getUserDocuments();
       setDocuments(data);
     } catch (error) {
       console.error('Error fetching documents:', error);
@@ -69,15 +46,7 @@ export default function DocumentManagement() {
   // Fetch user patents for filtering
   const fetchPatents = async () => {
     try {
-      const response = await fetch('/api/patents', {
-        credentials: 'include'
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to fetch patents');
-      }
-      
-      const data = await response.json();
+      const data = await patentAPI.getUserPatents();
       setPatents(data);
     } catch (error) {
       console.error('Error fetching patents:', error);
@@ -86,13 +55,15 @@ export default function DocumentManagement() {
 
   useEffect(() => {
     const loadData = async () => {
+      if (!user || !isInitialized || authLoading) return;
+      
       setLoading(true);
       await Promise.all([fetchDocuments(), fetchPatents()]);
       setLoading(false);
     };
     
     loadData();
-  }, []);
+  }, [user, isInitialized, authLoading]);
 
   // Filter documents based on search and filters
   const filteredDocuments = documents.filter(doc => {
@@ -129,15 +100,7 @@ export default function DocumentManagement() {
   // Download document
   const downloadDocument = async (document: PatentDocument) => {
     try {
-      const response = await fetch(`/api/documents/${document.id}/download`, {
-        credentials: 'include'
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to download document');
-      }
-      
-      const blob = await response.blob();
+      const blob = await documentAPI.downloadDocument(document.id);
       const url = window.URL.createObjectURL(blob);
       const a = window.document.createElement('a');
       a.href = url;
@@ -166,15 +129,7 @@ export default function DocumentManagement() {
     if (!confirm('Are you sure you want to delete this document?')) return;
     
     try {
-      const response = await fetch(`/api/documents/${documentId}`, {
-        method: 'DELETE',
-        credentials: 'include'
-      });
-      
-      if (!response.ok) {
-        throw new Error('Failed to delete document');
-      }
-      
+      await documentAPI.deleteDocument(documentId);
       setDocuments(documents.filter(doc => doc.id !== documentId));
       toast({
         title: "Success",
@@ -199,7 +154,7 @@ export default function DocumentManagement() {
   // Get unique categories
   const categories = [...new Set(patents.map(p => p.category))];
 
-  if (loading) {
+  if (loading || !user || !isInitialized || authLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
@@ -208,10 +163,10 @@ export default function DocumentManagement() {
   }
 
   return (
-    <div className="container mx-auto px-4 pb-8">
+    <div className="container mx-auto px-2 md:px-4 pb-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Document Management</h1>
-        <p className="text-gray-600">Manage and organize your patent documents</p>
+        <h1 className="text-3xl font-bold text-foreground mb-2">Document Management</h1>
+        <p className="text-muted-foreground">Manage and organize your patent documents</p>
       </div>
 
       {/* Filters and Search */}
@@ -223,7 +178,7 @@ export default function DocumentManagement() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-4">
             {/* Search */}
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
@@ -267,50 +222,50 @@ export default function DocumentManagement() {
       </Card>
 
       {/* Documents Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4 mb-6">
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-3 md:p-6">
             <div className="flex items-center">
-              <FileText className="h-8 w-8 text-blue-600" />
-              <div className="ml-4">
-                <p className="text-xs font-medium text-gray-600">Total Documents</p>
-                <p className="text-2xl font-bold text-gray-900">{documents.length}</p>
+              <FileText className="h-6 w-6 md:h-8 md:w-8 text-blue-600" />
+              <div className="ml-2 md:ml-4">
+                <p className="text-xs font-medium text-muted-foreground">Total Documents</p>
+                <p className="text-lg md:text-2xl font-bold text-foreground">{documents.length}</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-3 md:p-6">
             <div className="flex items-center">
-              <Hash className="h-8 w-8 text-green-600" />
-              <div className="ml-4">
-                <p className="text-xs font-medium text-gray-600">Verified Documents</p>
-                <p className="text-2xl font-bold text-gray-900">{documents.length}</p>
+              <Hash className="h-6 w-6 md:h-8 md:w-8 text-green-600" />
+              <div className="ml-2 md:ml-4">
+                <p className="text-xs font-medium text-muted-foreground">Verified Documents</p>
+                <p className="text-lg md:text-2xl font-bold text-foreground">{documents.length}</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-3 md:p-6">
             <div className="flex items-center">
-              <User className="h-8 w-8 text-purple-600" />
-              <div className="ml-4">
-                <p className="text-xs font-medium text-gray-600">Patents</p>
-                <p className="text-2xl font-bold text-gray-900">{patents.length}</p>
+              <User className="h-6 w-6 md:h-8 md:w-8 text-purple-600" />
+              <div className="ml-2 md:ml-4">
+                <p className="text-xs font-medium text-muted-foreground">Patents</p>
+                <p className="text-lg md:text-2xl font-bold text-foreground">{patents.length}</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="p-6">
+          <CardContent className="p-3 md:p-6">
             <div className="flex items-center">
-              <Calendar className="h-8 w-8 text-orange-600" />
-              <div className="ml-4">
-                <p className="text-xs font-medium text-gray-600">This Month</p>
-                <p className="text-2xl font-bold text-gray-900">
+              <Calendar className="h-6 w-6 md:h-8 md:w-8 text-orange-600" />
+              <div className="ml-2 md:ml-4">
+                <p className="text-xs font-medium text-muted-foreground">This Month</p>
+                <p className="text-lg md:text-2xl font-bold text-foreground">
                   {documents.filter(doc => {
                     const docDate = new Date(doc.createdAt);
                     const now = new Date();
@@ -334,28 +289,28 @@ export default function DocumentManagement() {
         <CardContent>
           {filteredDocuments.length === 0 ? (
             <div className="text-center py-8">
-              <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-500">No documents found</p>
+              <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <p className="text-muted-foreground">No documents found</p>
             </div>
           ) : (
             <div className="space-y-4">
               {filteredDocuments.map((document) => (
-                <div key={document.id} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-4">
-                      <div className="text-2xl">
+                <div key={document.id} className="border border-border rounded-lg p-3 md:p-4 hover:bg-accent transition-colors">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-start space-x-2 md:space-x-4 min-w-0 flex-1">
+                      <div className="text-xl md:text-2xl flex-shrink-0">
                         {getFileIcon(document.fileType)}
                       </div>
-                      <div>
-                        <h3 className="font-medium text-gray-900">{document.fileName}</h3>
-                        <p className="text-sm text-gray-600">
+                      <div className="min-w-0 flex-1">
+                        <h3 className="font-medium text-foreground text-sm md:text-base truncate">{document.fileName}</h3>
+                        <p className="text-xs md:text-sm text-muted-foreground truncate">
                           Patent: {getPatentTitle(document.patentId)}
                         </p>
-                        <div className="flex items-center space-x-4 mt-1">
-                          <span className="text-xs text-gray-500">
+                        <div className="flex flex-wrap items-center gap-2 md:gap-4 mt-1">
+                          <span className="text-xs text-muted-foreground">
                             {formatFileSize(document.fileSize)}
                           </span>
-                          <span className="text-xs text-gray-500">
+                          <span className="text-xs text-muted-foreground">
                             {new Date(document.createdAt).toLocaleDateString()}
                           </span>
                           <Badge variant="outline" className="text-xs">
@@ -365,27 +320,30 @@ export default function DocumentManagement() {
                       </div>
                     </div>
                     
-                    <div className="flex items-center space-x-2">
+                    <div className="flex flex-col md:flex-row items-center gap-1 md:gap-2 flex-shrink-0">
                       <Button
                         variant="outline"
                         size="sm"
                         onClick={() => downloadDocument(document)}
+                        className="p-2"
                       >
-                        <Download className="h-4 w-4" />
+                        <Download className="h-3 w-3 md:h-4 md:w-4" />
                       </Button>
                       <Button
                         variant="outline"
                         size="sm"
                         onClick={() => deleteDocument(document.id)}
+                        className="p-2"
                       >
-                        <Trash2 className="h-4 w-4" />
+                        <Trash2 className="h-3 w-3 md:h-4 md:w-4" />
                       </Button>
                     </div>
                   </div>
                   
                   {/* Hash verification */}
                   <div className="mt-3 p-2 bg-gray-100 rounded text-xs">
-                    <span className="font-medium">Hash:</span> {document.hashValue}
+                    <span className="font-medium">Hash:</span> 
+                    <span className="break-all ml-1">{document.hashValue}</span>
                   </div>
                 </div>
               ))}

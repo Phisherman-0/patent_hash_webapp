@@ -45,12 +45,12 @@ interface Patent {
 }
 
 const statusColors: Record<string, string> = {
-  draft: "bg-gray-100 text-gray-800",
+  draft: "bg-muted text-muted-foreground",
   pending: "bg-yellow-100 text-yellow-800",
   under_review: "bg-blue-100 text-blue-800",
   approved: "bg-green-100 text-green-800",
   rejected: "bg-red-100 text-red-800",
-  expired: "bg-gray-100 text-gray-600",
+  expired: "bg-muted text-muted-foreground",
 };
 
 const categoryIcons: Record<string, React.ComponentType<any>> = {
@@ -241,10 +241,10 @@ export default function MyPatents() {
   if (patentsLoading) {
     return (
       <div className="space-y-6">
-        <div className="h-8 bg-gray-200 rounded animate-pulse"></div>
+        <div className="h-8 bg-muted rounded animate-pulse"></div>
         <div className="space-y-4">
           {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="h-16 bg-gray-200 rounded animate-pulse"></div>
+            <div key={i} className="h-16 bg-muted rounded animate-pulse"></div>
           ))}
         </div>
       </div>
@@ -254,9 +254,9 @@ export default function MyPatents() {
   if (error) {
     return (
       <div className="text-center py-12">
-        <FileText className="mx-auto h-12 w-12 text-gray-400" />
-        <h3 className="mt-2 text-sm font-medium text-gray-900">Error loading patents</h3>
-        <p className="mt-1 text-sm text-gray-500">There was an error loading your patents. Please try again.</p>
+        <FileText className="mx-auto h-12 w-12 text-muted-foreground" />
+        <h3 className="mt-2 text-sm font-medium text-foreground">Error loading patents</h3>
+        <p className="mt-1 text-sm text-muted-foreground">There was an error loading your patents. Please try again.</p>
       </div>
     );
   }
@@ -266,8 +266,8 @@ export default function MyPatents() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">My Patents</h1>
-          <p className="text-gray-600 mt-2">
+          <h1 className="text-3xl font-bold text-foreground">My Patents</h1>
+          <p className="text-muted-foreground mt-2">
             Manage and track your intellectual property portfolio
           </p>
         </div>
@@ -284,7 +284,7 @@ export default function MyPatents() {
         <CardContent className="p-6">
           <div className="flex flex-col lg:flex-row gap-4">
             <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={16} />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" size={16} />
               <Input
                 placeholder="Search patents by title or description..."
                 value={searchQuery}
@@ -328,7 +328,7 @@ export default function MyPatents() {
 
       {/* Patents Table */}
       <Card>
-        <CardHeader className="border-b border-gray-200">
+        <CardHeader className="border-b border-border">
           <div className="flex items-center justify-between">
             <CardTitle>Patents ({filteredPatents.length})</CardTitle>
             <div className="flex items-center space-x-2">
@@ -342,9 +342,9 @@ export default function MyPatents() {
         <CardContent className="p-0">
           {filteredPatents.length === 0 ? (
             <div className="text-center py-12">
-              <FileText className="mx-auto h-12 w-12 text-gray-400" />
-              <h3 className="mt-2 text-sm font-medium text-gray-900">No patents found</h3>
-              <p className="mt-1 text-sm text-gray-500">
+              <FileText className="mx-auto h-12 w-12 text-muted-foreground" />
+              <h3 className="mt-2 text-sm font-medium text-foreground">No patents found</h3>
+              <p className="mt-1 text-sm text-muted-foreground">
                 {patents && patents.length === 0 
                   ? "Get started by filing your first patent."
                   : "Try adjusting your search criteria."
@@ -380,17 +380,17 @@ export default function MyPatents() {
                     const CategoryIcon = categoryIcons[patent.category] || FileText;
                     
                     return (
-                      <TableRow key={patent.id} className="hover:bg-gray-50">
+                      <TableRow key={patent.id} className="hover:bg-accent">
                         <TableCell>
                           <div className="flex items-center space-x-3">
                             <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
                               <CategoryIcon className="text-primary" size={20} />
                             </div>
                             <div className="min-w-0">
-                              <div className="text-sm font-medium text-gray-900 truncate">
+                              <div className="text-sm font-medium text-foreground truncate">
                                 {patent.title}
                               </div>
-                              <div className="text-sm text-gray-500 truncate">
+                              <div className="text-sm text-muted-foreground truncate">
                                 {patent.patentNumber || `ID: ${patent.id.slice(0, 8)}...`}
                               </div>
                             </div>
@@ -401,13 +401,13 @@ export default function MyPatents() {
                             {formatStatusName(patent.status)}
                           </Badge>
                         </TableCell>
-                        <TableCell className="text-sm text-gray-900">
+                        <TableCell className="text-sm text-foreground">
                           {formatCategoryName(patent.category)}
                         </TableCell>
-                        <TableCell className="text-sm font-medium text-gray-900">
+                        <TableCell className="text-sm font-medium text-foreground">
                           {formatCurrency(patent.estimatedValue)}
                         </TableCell>
-                        <TableCell className="text-sm text-gray-500">
+                        <TableCell className="text-sm text-muted-foreground">
                           {formatDate(patent.filedAt || patent.createdAt)}
                         </TableCell>
                         <TableCell>
@@ -419,7 +419,7 @@ export default function MyPatents() {
                               <Badge variant="secondary" className="text-xs">NFT</Badge>
                             )}
                             {!patent.hederaTopicId && (
-                              <span className="text-gray-400 text-xs">Not secured</span>
+                              <span className="text-muted-foreground text-xs">Not secured</span>
                             )}
                           </div>
                         </TableCell>
@@ -481,28 +481,28 @@ export default function MyPatents() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-4">
                   <div>
-                    <h4 className="font-semibold text-sm text-gray-700 mb-2">Status</h4>
+                    <h4 className="font-semibold text-sm text-muted-foreground mb-2">Status</h4>
                     <Badge className={statusColors[selectedPatent.status] || statusColors.draft}>
                       {formatStatusName(selectedPatent.status)}
                     </Badge>
                   </div>
                   <div>
-                    <h4 className="font-semibold text-sm text-gray-700 mb-2">Category</h4>
+                    <h4 className="font-semibold text-sm text-muted-foreground mb-2">Category</h4>
                     <p className="text-sm">{formatCategoryName(selectedPatent.category)}</p>
                   </div>
                   <div>
-                    <h4 className="font-semibold text-sm text-gray-700 mb-2">Estimated Value</h4>
+                    <h4 className="font-semibold text-sm text-muted-foreground mb-2">Estimated Value</h4>
                     <p className="text-sm font-medium">{formatCurrency(selectedPatent.estimatedValue)}</p>
                   </div>
                 </div>
                 
                 <div className="space-y-4">
                   <div>
-                    <h4 className="font-semibold text-sm text-gray-700 mb-2">Filed Date</h4>
+                    <h4 className="font-semibold text-sm text-muted-foreground mb-2">Filed Date</h4>
                     <p className="text-sm">{formatDate(selectedPatent.filedAt || selectedPatent.createdAt)}</p>
                   </div>
                   <div>
-                    <h4 className="font-semibold text-sm text-gray-700 mb-2">Blockchain Status</h4>
+                    <h4 className="font-semibold text-sm text-muted-foreground mb-2">Blockchain Status</h4>
                     <div className="flex items-center gap-2">
                       {selectedPatent.hederaTopicId ? (
                         <>
@@ -510,7 +510,7 @@ export default function MyPatents() {
                           <span className="text-sm text-green-600">Secured</span>
                         </>
                       ) : (
-                        <span className="text-sm text-gray-500">Not secured</span>
+                        <span className="text-sm text-muted-foreground">Not secured</span>
                       )}
                       {selectedPatent.hederaNftId && (
                         <Badge variant="secondary" className="text-xs ml-2">NFT Minted</Badge>
@@ -519,8 +519,8 @@ export default function MyPatents() {
                   </div>
                   {selectedPatent.hederaTopicId && (
                     <div>
-                      <h4 className="font-semibold text-sm text-gray-700 mb-2">Hedera Topic ID</h4>
-                      <p className="text-xs font-mono bg-gray-100 p-2 rounded">{selectedPatent.hederaTopicId}</p>
+                      <h4 className="font-semibold text-sm text-muted-foreground mb-2">Hedera Topic ID</h4>
+                      <p className="text-xs font-mono bg-muted p-2 rounded">{selectedPatent.hederaTopicId}</p>
                     </div>
                   )}
                 </div>
@@ -528,30 +528,30 @@ export default function MyPatents() {
               
               {/* Description */}
               <div>
-                <h4 className="font-semibold text-sm text-gray-700 mb-2">Description</h4>
-                <div className="bg-gray-50 p-4 rounded-lg">
+                <h4 className="font-semibold text-sm text-muted-foreground mb-2">Description</h4>
+                <div className="bg-muted/50 p-4 rounded-lg">
                   <p className="text-sm whitespace-pre-wrap">{selectedPatent.description}</p>
                 </div>
               </div>
               
               {/* Documents Section */}
               <div>
-                <h4 className="font-semibold text-sm text-gray-700 mb-2">Documents</h4>
+                <h4 className="font-semibold text-sm text-muted-foreground mb-2">Documents</h4>
                 <div className="border rounded-lg p-4">
                   {documentsLoading ? (
                     <div className="flex items-center justify-center py-8">
                       <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
-                      <span className="ml-2 text-sm text-gray-500">Loading documents...</span>
+                      <span className="ml-2 text-sm text-muted-foreground">Loading documents...</span>
                     </div>
                   ) : patentDocuments && patentDocuments.length > 0 ? (
                     <div className="space-y-3">
                       {patentDocuments.map((doc) => (
-                        <div key={doc.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                        <div key={doc.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
                           <div className="flex items-center space-x-3">
-                            <FileText className="h-5 w-5 text-gray-400" />
+                            <FileText className="h-5 w-5 text-muted-foreground" />
                             <div>
-                              <p className="text-sm font-medium text-gray-900">{doc.fileName}</p>
-                              <p className="text-xs text-gray-500">
+                              <p className="text-sm font-medium text-foreground">{doc.fileName}</p>
+                              <p className="text-xs text-muted-foreground">
                                 {formatFileSize(doc.fileSize)} • {new Date(doc.createdAt).toLocaleDateString()}
                               </p>
                             </div>
@@ -568,7 +568,7 @@ export default function MyPatents() {
                       ))}
                     </div>
                   ) : (
-                    <div className="flex flex-col items-center justify-center py-8 text-gray-500">
+                    <div className="flex flex-col items-center justify-center py-8 text-muted-foreground">
                       <FileText className="h-8 w-8 mb-2" />
                       <p className="text-sm">No documents available for this patent</p>
                     </div>

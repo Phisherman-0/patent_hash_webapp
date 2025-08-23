@@ -22,7 +22,6 @@ import StatusTracking from "@/pages/patents/StatusTracking";
 import PatentValuation from "@/pages/patents/PatentValuation";
 import DocumentManagement from "@/pages/patents/DocumentManagement";
 import DraftingAssistant from "@/pages/patents/DraftingAssistant";
-import QuickVerification from "@/pages/patents/QuickVerification";
 
 // AI Features
 import PriorArtSearch from "@/pages/ai/PriorArtSearch";
@@ -94,7 +93,6 @@ function App() {
                   <Route path="/patents/valuation" component={PatentValuation} />
                   <Route path="/patents/documents" component={DocumentManagement} />
                   <Route path="/patents/drafting" component={DraftingAssistant} />
-                  <Route path="/patents/quick-verify" component={QuickVerification} />
                   
                   {/* AI Features Routes */}
                   <Route path="/ai/prior-art-search" component={PriorArtSearch} />

@@ -282,7 +282,7 @@ export default function Classification() {
             </Form>
 
             {/* Category Reference */}
-            <div className="mt-6 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg">
+            <div className="mt-6 p-4 bg-muted rounded-lg">
               <h4 className="font-medium mb-3 text-sm">Available Categories</h4>
               <div className="grid gap-2">
                 {Object.entries(categoryInfo).slice(0, 4).map(([key, info]) => (

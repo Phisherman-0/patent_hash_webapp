@@ -206,10 +206,10 @@ export default function Profile() {
   if (isLoading) {
     return (
       <div className="space-y-6">
-        <div className="h-8 bg-gray-200 rounded animate-pulse"></div>
+        <div className="h-8 bg-muted rounded animate-pulse"></div>
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="h-64 bg-gray-200 rounded animate-pulse"></div>
-          <div className="lg:col-span-2 h-64 bg-gray-200 rounded animate-pulse"></div>
+          <div className="h-64 bg-muted rounded animate-pulse"></div>
+          <div className="lg:col-span-2 h-64 bg-muted rounded animate-pulse"></div>
         </div>
       </div>
     );
@@ -219,8 +219,8 @@ export default function Profile() {
     <div className="max-w-6xl mx-auto space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Profile Settings</h1>
-        <p className="text-gray-600 mt-2">
+        <h1 className="text-3xl font-bold text-foreground">Profile Settings</h1>
+        <p className="text-muted-foreground mt-2">
           Manage your account information and preferences.
         </p>
       </div>
@@ -302,13 +302,13 @@ export default function Profile() {
               
               <div className="space-y-2 text-sm">
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-500">Member since</span>
+                  <span className="text-muted-foreground">Member since</span>
                   <span className="font-medium">
                     {user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : "Recently"}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-500">Last updated</span>
+                  <span className="text-muted-foreground">Last updated</span>
                   <span className="font-medium">
                     {user?.updatedAt ? new Date(user.updatedAt).toLocaleDateString() : "Never"}
                   </span>
@@ -327,22 +327,22 @@ export default function Profile() {
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
-                  <FileText className="text-gray-400" size={16} />
-                  <span className="text-sm text-gray-600">Patents</span>
+                  <FileText className="text-muted-foreground" size={16} />
+                  <span className="text-sm text-muted-foreground">Patents</span>
                 </div>
                 <span className="font-medium">{userStats?.totalPatents || 0}</span>
               </div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
-                  <Shield className="text-gray-400" size={16} />
-                  <span className="text-sm text-gray-600">Blockchain Secured</span>
+                  <Shield className="text-muted-foreground" size={16} />
+                  <span className="text-sm text-muted-foreground">Blockchain Secured</span>
                 </div>
                 <span className="font-medium">{userStats?.blockchainSecured || 0}</span>
               </div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
-                  <BarChart3 className="text-gray-400" size={16} />
-                  <span className="text-sm text-gray-600">Portfolio Value</span>
+                  <BarChart3 className="text-muted-foreground" size={16} />
+                  <span className="text-sm text-muted-foreground">Portfolio Value</span>
                 </div>
                 <span className="font-medium">${userStats?.portfolioValue?.toLocaleString() || '0'}</span>
               </div>
@@ -461,14 +461,14 @@ export default function Profile() {
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+                <div className="flex items-center justify-between p-4 border border-border rounded-lg">
                   <div className="flex items-center space-x-3">
                     <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
                       <Key className="text-blue-600" size={20} />
                     </div>
                     <div>
-                      <h4 className="font-medium text-gray-900">Two-Factor Authentication</h4>
-                      <p className="text-sm text-gray-500">Add an extra layer of security to your account</p>
+                      <h4 className="font-medium text-foreground">Two-Factor Authentication</h4>
+                      <p className="text-sm text-muted-foreground">Add an extra layer of security to your account</p>
                     </div>
                   </div>
                   <Button variant="outline" size="sm">
@@ -476,14 +476,14 @@ export default function Profile() {
                   </Button>
                 </div>
 
-                <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+                <div className="flex items-center justify-between p-4 border border-border rounded-lg">
                   <div className="flex items-center space-x-3">
                     <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
                       <Shield className="text-green-600" size={20} />
                     </div>
                     <div>
-                      <h4 className="font-medium text-gray-900">Privacy Settings</h4>
-                      <p className="text-sm text-gray-500">Control how your data is used and shared</p>
+                      <h4 className="font-medium text-foreground">Privacy Settings</h4>
+                      <p className="text-sm text-muted-foreground">Control how your data is used and shared</p>
                     </div>
                   </div>
                   <Button variant="outline" size="sm">
@@ -491,14 +491,14 @@ export default function Profile() {
                   </Button>
                 </div>
 
-                <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg">
+                <div className="flex items-center justify-between p-4 border border-border rounded-lg">
                   <div className="flex items-center space-x-3">
                     <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
                       <FileText className="text-purple-600" size={20} />
                     </div>
                     <div>
-                      <h4 className="font-medium text-gray-900">Data Export</h4>
-                      <p className="text-sm text-gray-500">Download a copy of your patent data</p>
+                      <h4 className="font-medium text-foreground">Data Export</h4>
+                      <p className="text-sm text-muted-foreground">Download a copy of your patent data</p>
                     </div>
                   </div>
                   <Button variant="outline" size="sm">

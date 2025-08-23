@@ -131,8 +131,8 @@ export default function PriorArtSearch() {
     <div className="max-w-7xl mx-auto space-y-8">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Prior Art Search</h1>
-        <p className="text-gray-600 mt-2">
+        <h1 className="text-3xl font-bold text-foreground">Prior Art Search</h1>
+        <p className="text-muted-foreground mt-2">
           AI-powered search across global patent databases to identify similar inventions and potential conflicts.
         </p>
       </div>
@@ -206,7 +206,7 @@ export default function PriorArtSearch() {
                   <Button 
                     type="submit" 
                     disabled={searchMutation.isPending}
-                    className="w-full bg-primary hover:bg-primary-dark"
+                    className="border border-border rounded-lg p-4 hover:bg-accent transition-colors"
                   >
                     {searchMutation.isPending ? (
                       <>
@@ -285,9 +285,9 @@ export default function PriorArtSearch() {
                 </div>
               ) : searchResults.length === 0 ? (
                 <div className="text-center py-12">
-                  <Microscope className="mx-auto h-12 w-12 text-gray-400" />
-                  <h3 className="mt-2 text-sm font-medium text-gray-900">No search performed yet</h3>
-                  <p className="mt-1 text-sm text-gray-500">
+                  <Microscope className="mx-auto h-12 w-12 text-muted-foreground" />
+                  <h3 className="mt-2 text-sm font-medium text-foreground">No search results</h3>
+                  <p className="mt-1 text-sm text-muted-foreground">
                     Enter your invention description and click search to find prior art.
                   </p>
                 </div>
@@ -322,17 +322,18 @@ export default function PriorArtSearch() {
                             <div className="flex items-center space-x-3">
                               {getSourceIcon(result.source)}
                               <div>
-                                <h4 className="font-medium text-gray-900">{result.title}</h4>
+                                <h3 className="font-semibold text-foreground">{result.title}</h3>
                                 <p className="text-sm text-gray-500">
                                   {result.patentId} • {result.source}
                                 </p>
                               </div>
                             </div>
-                            <div className="flex items-center space-x-2">
-                              <Badge className={risk.color}>
-                                {risk.level} Risk
+                            <div className="flex items-center justify-between mt-3">
+                              <Badge variant="secondary" className="text-xs">
+                                {result.source}
                               </Badge>
-                              <div className="text-right">
+                              <div className="flex items-center space-x-2">
+                                <span className="text-sm text-muted-foreground">Similarity:</span>
                                 <div className="text-sm font-medium text-gray-900">
                                   {(result.similarityScore * 100).toFixed(1)}%
                                 </div>
@@ -341,7 +342,7 @@ export default function PriorArtSearch() {
                             </div>
                           </div>
                           
-                          <p className="text-sm text-gray-700 mb-3 line-clamp-3">
+                          <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
                             {result.description}
                           </p>
                           

@@ -42,7 +42,6 @@ const navigationSections = [
       { label: "File New Patent", icon: PlusCircle, href: "/patents/file" },
       { label: "AI Patent Valuation", icon: DollarSign, href: "/patents/valuation" },
       { label: "Drafting Assistant", icon: Edit3, href: "/patents/drafting" },
-      { label: "Quick Verification", icon: Search, href: "/patents/verify" },
     ],
   },
   {
@@ -102,22 +101,22 @@ export default function Sidebar({ className, onItemClick }: SidebarProps) {
   };
 
   return (
-    <aside className={cn("flex flex-col w-80 bg-white border-r border-gray-200 shadow-sm h-full", className)} data-testid="sidebar">
+    <aside className={cn("flex flex-col w-full md:w-80 bg-card border-r border-border shadow-sm h-full", className)} data-testid="sidebar">
       {/* Logo and Brand */}
-      <div className="flex items-center justify-center h-16 px-6 bg-primary flex-shrink-0">
-        <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
-            <Fingerprint className="text-primary text-lg" />
+      <div className="flex items-center justify-center h-16 px-4 md:px-6 bg-primary flex-shrink-0">
+        <div className="flex items-center space-x-2 md:space-x-3">
+          <div className="w-6 h-6 md:w-8 md:h-8 bg-white rounded-lg flex items-center justify-center">
+            <Fingerprint className="text-primary text-sm md:text-lg" />
           </div>
-          <span className="text-white font-bold text-xl">Patent Hash</span>
+          <span className="text-white font-bold text-lg md:text-xl">Patent Hash</span>
         </div>
       </div>
 
       {/* Navigation Menu - Scrollable */}
-      <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto min-h-0 scrollbar-thin" data-testid="sidebar-nav">
+      <nav className="flex-1 px-2 md:px-4 py-4 md:py-6 space-y-2 overflow-y-auto min-h-0 scrollbar-thin" data-testid="sidebar-nav">
         {navigationSections.map((section) => (
           <div key={section.title} className="mb-6">
-            <h3 className="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
+            <h3 className="px-2 md:px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 md:mb-3">
               {section.title}
             </h3>
             <div className="space-y-1">
@@ -133,8 +132,8 @@ export default function Sidebar({ className, onItemClick }: SidebarProps) {
                     onClick={onItemClick}
                     data-testid={`nav-${item.label.toLowerCase().replace(/\s+/g, '-')}`}
                   >
-                    <Icon className="mr-3" size={16} />
-                    {item.label}
+                    <Icon className="mr-2 md:mr-3 flex-shrink-0" size={16} />
+                    <span className="truncate">{item.label}</span>
                   </Link>
                 );
               })}
@@ -144,23 +143,23 @@ export default function Sidebar({ className, onItemClick }: SidebarProps) {
       </nav>
 
       {/* User Profile at Bottom */}
-      <div className="flex-shrink-0 border-t border-gray-200 p-4" data-testid="user-profile">
+      <div className="flex-shrink-0 border-t border-border p-3 md:p-4" data-testid="user-profile">
         <div className="flex items-center w-full">
-          <Avatar className="w-10 h-10">
+          <Avatar className="w-8 h-8 md:w-10 md:h-10 flex-shrink-0">
             <AvatarImage src={user?.profileImageUrl ? `${import.meta.env.VITE_API_BASE_URL}${user.profileImageUrl}` : ""}
             alt={user?.firstName || ""} 
             />
-            <AvatarFallback className="bg-primary text-white font-semibold text-sm">
+            <AvatarFallback className="bg-primary text-white font-semibold text-xs md:text-sm">
               {getUserInitials()}
             </AvatarFallback>
           </Avatar>
-          <div className="ml-3 flex-1 min-w-0">
-            <p className="text-sm font-medium text-gray-700 truncate">
+          <div className="ml-2 md:ml-3 flex-1 min-w-0">
+            <p className="text-xs md:text-sm font-medium text-foreground truncate">
               {user?.firstName && user?.lastName 
                 ? `${user.firstName} ${user.lastName}` 
                 : user?.email || "User"}
             </p>
-            <p className="text-xs text-gray-500 truncate">
+            <p className="text-xs text-muted-foreground truncate hidden md:block">
               {user?.email}
             </p>
           </div>
@@ -168,10 +167,10 @@ export default function Sidebar({ className, onItemClick }: SidebarProps) {
             variant="ghost"
             size="sm"
             onClick={handleLogout}
-            className="ml-2 text-gray-400 hover:text-gray-600"
+            className="ml-1 md:ml-2 text-muted-foreground hover:text-foreground p-1 md:p-2"
             data-testid="button-logout"
           >
-            <LogOut size={16} />
+            <LogOut size={14} className="md:w-4 md:h-4" />
           </Button>
         </div>
       </div>
