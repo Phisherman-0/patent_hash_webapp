@@ -27,6 +27,7 @@ import { Button } from "@/components/ui/button";
 import { useAppDispatch, useAppSelector } from "@/hooks/useAppDispatch";
 import { logoutUser } from "@/store/authSlice";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import logo from "../../assets/ph white.png";
 
 const navigationSections = [
   {
@@ -104,10 +105,11 @@ export default function Sidebar({ className, onItemClick }: SidebarProps) {
     <aside className={cn("flex flex-col w-full md:w-80 bg-card border-r border-border shadow-sm h-full", className)} data-testid="sidebar">
       {/* Logo and Brand */}
       <div className="flex items-center justify-center h-16 px-4 md:px-6 bg-primary flex-shrink-0">
-        <div className="flex items-center space-x-2 md:space-x-3">
-          <div className="w-6 h-6 md:w-8 md:h-8 bg-white rounded-lg flex items-center justify-center">
+        <div className="flex items-center space-x-1 md:space-x-2">
+          {/* <div className="w-6 h-6 md:w-8 md:h-8 bg-white rounded-lg flex items-center justify-center">
             <Fingerprint className="text-primary text-sm md:text-lg" />
-          </div>
+          </div> */}
+          <img src={logo} alt="PatentHash Logo" className="h-12 w-14 "/>
           <span className="text-white font-bold text-lg md:text-xl">Patent Hash</span>
         </div>
       </div>
