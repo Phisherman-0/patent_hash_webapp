@@ -59,12 +59,18 @@ export function WalletProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     // Only initialize wallet status after auth is initialized and user is authenticated
     if (isInitialized && user) {
-      checkWalletStatus();
+      // Add a small delay to ensure session is established
+      const timer = setTimeout(() => {
+        checkWalletStatus();
+      }, 500);
       
       // Set up polling to check wallet status every 30 seconds
       const interval = setInterval(checkWalletStatus, 30000);
       
-      return () => clearInterval(interval);
+      return () => {
+        clearTimeout(timer);
+        clearInterval(interval);
+      };
     } else if (isInitialized && !user) {
       // Clear wallet status if user is not authenticated
       setWalletStatus({ isConfigured: false });

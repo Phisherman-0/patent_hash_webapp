@@ -49,21 +49,21 @@ export default function Dashboard() {
   const { data: stats, isLoading: statsLoading } = useQuery<DashboardStats>({
     queryKey: ["dashboard-stats"],
     queryFn: dashboardAPI.getStats,
-    enabled: !!user,
+    enabled: !!user && isInitialized && !isLoading,
     retry: false,
   });
 
   const { data: activities, isLoading: activitiesLoading } = useQuery<Activity[]>({
     queryKey: ["dashboard-activities"],
     queryFn: () => dashboardAPI.getActivities(10),
-    enabled: !!user,
+    enabled: !!user && isInitialized && !isLoading,
     retry: false,
   });
 
   const { data: categoryStats, isLoading: categoryLoading } = useQuery<CategoryStat[]>({
     queryKey: ["dashboard-category-stats"],
     queryFn: dashboardAPI.getCategoryStats,
-    enabled: !!user,
+    enabled: !!user && isInitialized && !isLoading,
     retry: false,
   });
 

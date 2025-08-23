@@ -59,27 +59,27 @@ export const initializeAuth = createAsyncThunk(
       // First check localStorage
       const storedUser = localStorage.getItem('patent_hash_user');
       if (storedUser) {
-        JSON.parse(storedUser);
+        const parsedUser = JSON.parse(storedUser);
         
-        // Verify with server that session is still valid
-        try {
-          const serverUser = await authAPI.getCurrentUser();
-          return serverUser;
-        } catch (error) {
-          // Session expired, clear localStorage
-          localStorage.removeItem('patent_hash_user');
-          return null; // Don't use cached user if server rejects
-        }
+        // Return cached user immediately, verify in background
+        // This prevents unnecessary API calls on every page load
+        setTimeout(async () => {
+          try {
+            await authAPI.getCurrentUser();
+          } catch (error) {
+            // Session expired, clear localStorage and redirect
+            localStorage.removeItem('patent_hash_user');
+            if (typeof window !== 'undefined' && !window.location.pathname.includes('/login')) {
+              window.location.href = '/login';
+            }
+          }
+        }, 1000);
+        
+        return parsedUser;
       }
       
-      // No stored user, check server session
-      try {
-        const user = await authAPI.getCurrentUser();
-        localStorage.setItem('patent_hash_user', JSON.stringify(user));
-        return user;
-      } catch {
-        // Network error or not authenticated
-      }
+      // No stored user, don't make unnecessary server calls
+      // Let login handle authentication
       
       return null;
     } catch (error) {

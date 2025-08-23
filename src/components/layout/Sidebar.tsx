@@ -115,10 +115,6 @@ export default function Sidebar({ className, onItemClick }: SidebarProps) {
 
       {/* Navigation Menu - Scrollable */}
       <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto min-h-0 scrollbar-thin" data-testid="sidebar-nav">
-        <Link href="/wallet" className="flex items-center gap-3 px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
-          <Wallet className="h-4 w-4" />
-          Wallet
-        </Link>
         {navigationSections.map((section) => (
           <div key={section.title} className="mb-6">
             <h3 className="px-3 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">
