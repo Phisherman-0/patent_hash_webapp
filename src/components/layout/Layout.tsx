@@ -18,7 +18,7 @@ export default function Layout({ children }: LayoutProps) {
   };
 
   return (
-    <div className="h-screen flex bg-background overflow-hidden">
+    <div className="h-screen flex bg-background overflow-hidden pt-9">
       {/* Desktop Sidebar */}
       <div className="hidden lg:flex lg:flex-shrink-0 lg:h-full">
         <Sidebar />

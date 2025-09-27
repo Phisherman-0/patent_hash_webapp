@@ -104,6 +104,14 @@ function App() {
           <HederaWalletProvider>
             <WalletConnectClient />
             <div className="App">
+              {/* Testnet Warning Message */}
+              <div className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-primary to-primary text-white py-2 px-4 shadow-sm overflow-hidden hover:animate-scroll-paused">
+                <div className="flex items-center whitespace-nowrap animate-scroll">
+                  <span className="text-sm font-medium">
+                    ⚠️ WARNING: This application is under development. Please use ONLY TESTNET wallets for testing purposes. Do not use mainnet wallets or real funds. ⚠️
+                  </span>
+                </div>
+              </div>
             <Router>
               <Switch>
                 {/* Login route */}
