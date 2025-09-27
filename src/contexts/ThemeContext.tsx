@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import { useAppSelector } from '@/hooks/useAppDispatch';
 
 type Theme = 'light' | 'dark' | 'system';
 
@@ -11,16 +12,32 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<Theme>('light');
+  const [theme, setTheme] = useState<Theme>('light'); // Start with light theme to prevent flash
   const [actualTheme, setActualTheme] = useState<'light' | 'dark'>('light');
+  const [isThemeLoaded, setIsThemeLoaded] = useState(false);
+  const { user, isInitialized } = useAppSelector((state) => state.auth);
 
   useEffect(() => {
-    // Load theme from localStorage on mount
-    const savedTheme = localStorage.getItem('theme') as Theme;
-    if (savedTheme && ['light', 'dark', 'system'].includes(savedTheme)) {
-      setTheme(savedTheme);
+    // Priority: Database theme > localStorage theme > default light
+    if (isInitialized) {
+      if (user?.settings?.theme) {
+        // Use database theme if available
+        const userTheme = user.settings.theme as Theme;
+        if (['light', 'dark', 'system'].includes(userTheme)) {
+          setTheme(userTheme);
+          setIsThemeLoaded(true);
+          return;
+        }
+      }
+      
+      // Fallback to localStorage theme if no database theme
+      const savedTheme = localStorage.getItem('theme') as Theme;
+      if (savedTheme && ['light', 'dark', 'system'].includes(savedTheme)) {
+        setTheme(savedTheme);
+      }
+      setIsThemeLoaded(true);
     }
-  }, []);
+  }, [user, isInitialized]);
 
   useEffect(() => {
     const updateActualTheme = () => {
@@ -42,19 +59,27 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   }, [theme]);
 
   useEffect(() => {
-    // Apply theme to document
-    const root = document.documentElement;
-    root.classList.remove('light', 'dark');
-    root.classList.add(actualTheme);
-    
-    // Save theme preference to localStorage
-    localStorage.setItem('theme', theme);
-    
-    // Save theme preference to backend
-    saveThemePreference(theme);
-  }, [theme, actualTheme]);
+    // Only apply theme changes after initial load to prevent flash
+    if (isThemeLoaded) {
+      // Apply theme to document
+      const root = document.documentElement;
+      root.classList.remove('light', 'dark');
+      root.classList.add(actualTheme);
+      
+      // Save theme preference to localStorage
+      localStorage.setItem('theme', theme);
+      
+      // Save theme preference to backend
+      saveThemePreference(theme);
+    }
+  }, [theme, actualTheme, isThemeLoaded]);
 
   const saveThemePreference = async (newTheme: Theme) => {
+    // Only save to backend if user is authenticated
+    if (!user) {
+      return;
+    }
+    
     try {
       await fetch('/api/auth/user/settings', {
         method: 'PUT',

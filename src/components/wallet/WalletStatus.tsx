@@ -1,159 +1,177 @@
-import { useState } from "react";
-import { Wallet, WifiOff, AlertCircle, ChevronDown, Settings, ExternalLink, RefreshCw } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Link } from "wouter";
-import { cn } from "@/lib/utils";
-import { useWallet } from "@/contexts/WalletContext";
+import { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { 
+  Wallet, 
+  ExternalLink, 
+  Copy, 
+  AlertCircle, 
+  CheckCircle,
+  RefreshCw
+} from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { useHashPackWallet } from '@/contexts/HashPackWalletContext';
+import { ConnectionState } from '@/services/hashPackWalletService';
 
 export function WalletStatus() {
-  const { walletStatus, isLoading, error, refreshStatus } = useWallet();
+  const { toast } = useToast();
+  const {
+    walletInfo,
+    connectionState,
+    isConnecting,
+    error,
+    connect,
+    disconnect,
+    isExtensionAvailable
+  } = useHashPackWallet();
+  
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  const handleRefresh = async () => {
-    setIsRefreshing(true);
-    await refreshStatus();
-    setIsRefreshing(false);
+  const isConnected = connectionState === ConnectionState.Connected && walletInfo?.isConnected;
+
+  const handleConnect = async () => {
+    try {
+      await connect('testnet');
+      toast({
+        title: "Wallet Connected",
+        description: "Successfully connected to HashPack wallet",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Connection Failed",
+        description: error.message || "Failed to connect wallet",
+        variant: "destructive",
+      });
+    }
   };
 
-  const getStatusInfo = () => {
-    if (isLoading) {
-      return {
-        text: "Checking...",
-        color: "bg-gray-500",
-        icon: <Wallet className="h-4 w-4" />,
-        isConnected: false
-      };
+  const handleDisconnect = async () => {
+    try {
+      await disconnect();
+      toast({
+        title: "Wallet Disconnected",
+        description: "Successfully disconnected from wallet",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Disconnection Failed",
+        description: error.message || "Failed to disconnect wallet",
+        variant: "destructive",
+      });
     }
-
-    if (error) {
-      return {
-        text: "Error",
-        color: "bg-red-500",
-        icon: <AlertCircle className="h-4 w-4" />,
-        isConnected: false
-      };
-    }
-
-    if (!walletStatus.isConfigured) {
-      return {
-        text: "Disconnected",
-        color: "bg-red-500",
-        icon: <WifiOff className="h-4 w-4" />,
-        isConnected: false
-      };
-    }
-
-    return {
-      text: "Connected",
-      color: "bg-green-500",
-      icon: <Wallet className="h-4 w-4" />,
-      isConnected: true
-    };
   };
 
-  const statusInfo = getStatusInfo();
+  const copyAccountId = () => {
+    if (walletInfo?.accountId) {
+      navigator.clipboard.writeText(walletInfo.accountId);
+      toast({
+        title: "Copied",
+        description: "Account ID copied to clipboard",
+      });
+    }
+  };
+
+  const openInExplorer = () => {
+    if (walletInfo?.accountId) {
+      const explorerUrl = walletInfo.network === 'mainnet' 
+        ? `https://hashscan.io/mainnet/account/${walletInfo.accountId}`
+        : `https://hashscan.io/testnet/account/${walletInfo.accountId}`;
+      window.open(explorerUrl, '_blank');
+    }
+  };
+
+  if (!isConnected) {
+    return (
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={handleConnect}
+        disabled={isConnecting}
+        className="flex items-center space-x-2"
+      >
+        {isConnecting ? (
+          <RefreshCw className="h-4 w-4 animate-spin" />
+        ) : (
+          <Wallet className="h-4 w-4" />
+        )}
+        <span>{isConnecting ? 'Connecting...' : 'Connect Wallet'}</span>
+      </Button>
+    );
+  }
 
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button 
-          variant="ghost" 
-          size="sm" 
-          className="flex items-center gap-2 px-3 py-2 hover:bg-gray-50 transition-colors"
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          size="sm"
+          className="flex items-center space-x-2"
         >
-          <div className="flex items-center gap-2">
-            <div className={cn(
-              "w-2 h-2 rounded-full animate-pulse",
-              statusInfo.color
-            )} />
-            {statusInfo.icon}
-            <span className="text-sm font-medium text-gray-700">
-              {statusInfo.text}
-            </span>
-            <ChevronDown className="h-3 w-3 text-gray-500" />
-          </div>
+          <CheckCircle className="h-4 w-4 text-green-500" />
+          <span className="hidden sm:inline">Connected</span>
+          <Badge variant="secondary" className="hidden md:inline">
+            {walletInfo.network === 'mainnet' ? 'Mainnet' : 'Testnet'}
+          </Badge>
         </Button>
-      </DropdownMenuTrigger>
-      
-      <DropdownMenuContent align="end" className="w-80 p-0">
-        <div className="p-4 border-b">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="font-semibold text-gray-900">Wallet Status</h3>
+      </PopoverTrigger>
+      <PopoverContent className="w-80" align="end">
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h4 className="font-medium">Wallet Connected</h4>
+            <Badge variant="outline">
+              {walletInfo.network === 'mainnet' ? 'Mainnet' : 'Testnet'}
+            </Badge>
+          </div>
+          
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-muted-foreground">Account</span>
+              <div className="flex items-center space-x-1">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={copyAccountId}
+                  className="h-6 w-6 p-0"
+                >
+                  <Copy className="h-3 w-3" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={openInExplorer}
+                  className="h-6 w-6 p-0"
+                >
+                  <ExternalLink className="h-3 w-3" />
+                </Button>
+              </div>
+            </div>
+            <div className="p-2 bg-muted rounded-md">
+              <code className="text-xs font-mono break-all">
+                {walletInfo.accountId}
+              </code>
+            </div>
+          </div>
+          
+          {error && (
+            <div className="flex items-center space-x-2 p-2 bg-destructive/10 rounded-md">
+              <AlertCircle className="h-4 w-4 text-destructive" />
+              <span className="text-xs text-destructive">{error}</span>
+            </div>
+          )}
+          
+          <div className="flex space-x-2">
             <Button
-              variant="ghost"
+              variant="outline"
               size="sm"
-              onClick={handleRefresh}
-              disabled={isRefreshing}
-              className="h-8 w-8 p-0"
+              onClick={handleDisconnect}
+              className="flex-1"
             >
-              <RefreshCw className={cn(
-                "h-4 w-4",
-                isRefreshing && "animate-spin"
-              )} />
+              Disconnect
             </Button>
           </div>
-          
-          <div className="flex items-center gap-3">
-            <div className={cn(
-              "w-3 h-3 rounded-full",
-              statusInfo.color,
-              statusInfo.isConnected && "animate-pulse"
-            )} />
-            <div className="flex-1">
-              <p className="text-sm font-medium text-gray-900">
-                {statusInfo.isConnected ? 'Connected' : 'Disconnected'}
-              </p>
-              {statusInfo.isConnected && walletStatus.accountId && (
-                <p className="text-xs text-gray-500 font-mono">
-                  {walletStatus.accountId}
-                </p>
-              )}
-            </div>
-          </div>
-          
-          {statusInfo.isConnected && (
-            <div className="mt-3 space-y-1">
-              <div className="flex justify-between text-xs">
-                <span className="text-gray-500">Network:</span>
-                <span className="font-medium text-gray-700 uppercase">
-                  {walletStatus.network || 'Unknown'}
-                </span>
-              </div>
-              {walletStatus.configuredAt && (
-                <div className="flex justify-between text-xs">
-                  <span className="text-gray-500">Connected:</span>
-                  <span className="font-medium text-gray-700">
-                    {new Date(walletStatus.configuredAt).toLocaleDateString()}
-                  </span>
-                </div>
-              )}
-            </div>
-          )}
         </div>
-        
-        <div className="p-2">
-          <Link href="/wallet">
-            <DropdownMenuItem className="cursor-pointer">
-              <Settings className="mr-2 h-4 w-4" />
-              Wallet Settings
-            </DropdownMenuItem>
-          </Link>
-          
-          {statusInfo.isConnected && (
-            <>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem 
-                className="cursor-pointer text-blue-600 hover:text-blue-700 hover:bg-blue-50"
-                onClick={() => window.open('https://portal.hedera.com', '_blank')}
-              >
-                <ExternalLink className="h-4 w-4 mr-2" />
-                Hedera Portal
-              </DropdownMenuItem>
-            </>
-          )}
-        </div>
-      </DropdownMenuContent>
-    </DropdownMenu>
+      </PopoverContent>
+    </Popover>
   );
 }

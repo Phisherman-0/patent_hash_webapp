@@ -5,13 +5,14 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useToast } from "@/hooks/use-toast";
 import { useAppDispatch, useAppSelector } from "@/hooks/useAppDispatch";
 import { logoutUser, fetchUser } from "@/store/authSlice";
-import { authAPI, dashboardAPI } from "@/lib/apiService";
+import { authAPI, dashboardAPI, consultantAPI } from "@/lib/apiService";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -30,6 +31,7 @@ import {
   Trash2,
   Upload,
   X,
+  Briefcase,
 } from "lucide-react";
 import z from "zod";
 
@@ -48,6 +50,16 @@ export default function Profile() {
   const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
+  
+  // Consultant profile state
+  const [isConsultantLoading, setIsConsultantLoading] = useState(false);
+  const [isConsultantSaving, setIsConsultantSaving] = useState(false);
+  const [specialization, setSpecialization] = useState("");
+  const [bio, setBio] = useState("");
+  const [experienceYears, setExperienceYears] = useState(0);
+  const [hourlyRate, setHourlyRate] = useState(0);
+  const [availabilityStatus, setAvailabilityStatus] = useState<'available' | 'busy' | 'offline'>('available');
+  const [availabilityMessage, setAvailabilityMessage] = useState("");
 
   // Fetch user stats
   const { data: userStats } = useQuery({
@@ -75,6 +87,32 @@ export default function Profile() {
       });
     }
   }, [user, form]);
+
+  // Fetch consultant profile data when user is a consultant
+  useEffect(() => {
+    const fetchConsultantProfile = async () => {
+      if (user?.role === 'consultant') {
+        try {
+          setIsConsultantLoading(true);
+          const response = await consultantAPI.getConsultantProfile();
+          setSpecialization(response.specialization || "");
+          setBio(response.bio || "");
+          setExperienceYears(response.experienceYears || 0);
+          setHourlyRate(response.hourlyRate || 0);
+          if (response.availability) {
+            setAvailabilityStatus(response.availability.status || 'available');
+            setAvailabilityMessage(response.availability.message || "");
+          }
+        } catch (error) {
+          console.log("Consultant profile not found, will create new one");
+        } finally {
+          setIsConsultantLoading(false);
+        }
+      }
+    };
+
+    fetchConsultantProfile();
+  }, [user?.role]);
 
   const updateProfileMutation = useMutation({
     mutationFn: async (data: ProfileFormValues) => {
@@ -152,6 +190,29 @@ export default function Profile() {
     },
   });
 
+  const updateConsultantProfileMutation = useMutation({
+    mutationFn: async (data: any) => {
+      return consultantAPI.updateConsultantProfile(data);
+    },
+    onSuccess: () => {
+      toast({
+        title: "Consultant profile updated",
+        description: "Your consultant profile has been successfully updated.",
+      });
+    },
+    onError: (error: any) => {
+      if (isUnauthorizedError(error)) {
+        dispatch(logoutUser());
+        return;
+      }
+      toast({
+        title: "Error updating consultant profile",
+        description: error?.response?.data?.message || error?.message || "Failed to update consultant profile",
+        variant: "destructive",
+      });
+    },
+  });
+
   const onSubmit = (data: ProfileFormValues) => {
     updateProfileMutation.mutate(data);
   };
@@ -201,6 +262,20 @@ export default function Profile() {
 
   const handleDeleteImage = () => {
     deleteImageMutation.mutate();
+  };
+
+  const handleSaveConsultantProfile = () => {
+    const consultantData = {
+      specialization,
+      bio,
+      experienceYears,
+      hourlyRate,
+      availability: {
+        status: availabilityStatus,
+        message: availabilityMessage,
+      },
+    };
+    updateConsultantProfileMutation.mutate(consultantData);
   };
 
   if (isLoading) {
@@ -448,113 +523,125 @@ export default function Profile() {
             </CardContent>
           </Card>
 
-          {/* Security Settings */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <Shield className="mr-2" size={20} />
-                Security & Privacy
-              </CardTitle>
-              <CardDescription>
-                Manage your account security and privacy settings
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 border border-border rounded-lg">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                      <Key className="text-blue-600" size={20} />
-                    </div>
-                    <div>
-                      <h4 className="font-medium text-foreground">Two-Factor Authentication</h4>
-                      <p className="text-sm text-muted-foreground">Add an extra layer of security to your account</p>
-                    </div>
+          {/* Consultant Profile Section - Only show for consultants */}
+          {user?.role === 'consultant' && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <Briefcase className="mr-2" size={20} />
+                  Consultant Profile
+                </CardTitle>
+                <CardDescription>
+                  Manage your consultant profile information
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {isConsultantLoading ? (
+                  <div className="flex items-center justify-center py-8">
+                    <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+                    <span className="ml-2">Loading consultant profile...</span>
                   </div>
-                  <Button variant="outline" size="sm">
-                    Enable
-                  </Button>
-                </div>
-
-                <div className="flex items-center justify-between p-4 border border-border rounded-lg">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                      <Shield className="text-green-600" size={20} />
+                ) : (
+                  <>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-2">
+                        <Label htmlFor="specialization">Specialization</Label>
+                        <Input
+                          id="specialization"
+                          value={specialization}
+                          onChange={(e) => setSpecialization(e.target.value)}
+                          placeholder="e.g., Patent Law, Technical Writing, AI Patents"
+                        />
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <Label htmlFor="experience">Years of Experience</Label>
+                        <Input
+                          id="experience"
+                          type="number"
+                          value={experienceYears}
+                          onChange={(e) => setExperienceYears(Number(e.target.value))}
+                          min="0"
+                        />
+                      </div>
                     </div>
-                    <div>
-                      <h4 className="font-medium text-foreground">Privacy Settings</h4>
-                      <p className="text-sm text-muted-foreground">Control how your data is used and shared</p>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="bio">Bio</Label>
+                      <Textarea
+                        id="bio"
+                        value={bio}
+                        onChange={(e) => setBio(e.target.value)}
+                        placeholder="Tell us about your expertise and experience"
+                        rows={4}
+                      />
                     </div>
-                  </div>
-                  <Button variant="outline" size="sm">
-                    Manage
-                  </Button>
-                </div>
-
-                <div className="flex items-center justify-between p-4 border border-border rounded-lg">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                      <FileText className="text-purple-600" size={20} />
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="rate">Hourly Rate ($)</Label>
+                      <Input
+                        id="rate"
+                        type="number"
+                        value={hourlyRate}
+                        onChange={(e) => setHourlyRate(Number(e.target.value))}
+                        min="0"
+                        step="0.01"
+                        placeholder="0.00"
+                      />
                     </div>
-                    <div>
-                      <h4 className="font-medium text-foreground">Data Export</h4>
-                      <p className="text-sm text-muted-foreground">Download a copy of your patent data</p>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="availability">Availability Status</Label>
+                      <select
+                        id="availability"
+                        className="w-full p-2 border rounded"
+                        value={availabilityStatus}
+                        onChange={(e) => setAvailabilityStatus(e.target.value as 'available' | 'busy' | 'offline')}
+                      >
+                        <option value="available">Available</option>
+                        <option value="busy">Busy</option>
+                        <option value="offline">Offline</option>
+                      </select>
                     </div>
-                  </div>
-                  <Button variant="outline" size="sm">
-                    Export
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+                    
+                    <div className="space-y-2">
+                      <Label htmlFor="availabilityMessage">Availability Message (Optional)</Label>
+                      <Input
+                        id="availabilityMessage"
+                        value={availabilityMessage}
+                        onChange={(e) => setAvailabilityMessage(e.target.value)}
+                        placeholder="e.g., Available for new appointments, In a meeting, etc."
+                      />
+                    </div>
+                    
+                    <div className="flex justify-end">
+                      <Button 
+                        onClick={handleSaveConsultantProfile} 
+                        disabled={updateConsultantProfileMutation.isPending || isConsultantSaving}
+                        className="bg-primary hover:bg-primary-dark"
+                      >
+                        {updateConsultantProfileMutation.isPending || isConsultantSaving ? (
+                          <>
+                            <Settings className="mr-2 animate-spin" size={16} />
+                            Saving...
+                          </>
+                        ) : (
+                          <>
+                            <Save className="mr-2" size={16} />
+                            Save Consultant Profile
+                          </>
+                        )}
+                      </Button>
+                    </div>
+                  </>
+                )}
+              </CardContent>
+            </Card>
+          )}
 
-          {/* Account Actions */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center text-red-600">
-                <Trash2 className="mr-2" size={20} />
-                Danger Zone
-              </CardTitle>
-              <CardDescription>
-                Irreversible and destructive actions
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between p-4 border border-red-200 rounded-lg bg-red-50">
-                <div>
-                  <h4 className="font-medium text-red-900">Sign Out</h4>
-                  <p className="text-sm text-red-700">Sign out of your account on this device</p>
-                </div>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={handleLogout}
-                  className="border-red-300 text-red-700 hover:bg-red-100"
-                >
-                  <LogOut className="mr-2" size={14} />
-                  Sign Out
-                </Button>
-              </div>
-
-              <div className="flex items-center justify-between p-4 border border-red-200 rounded-lg bg-red-50">
-                <div>
-                  <h4 className="font-medium text-red-900">Delete Account</h4>
-                  <p className="text-sm text-red-700">Permanently delete your account and all associated data</p>
-                </div>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  className="border-red-300 text-red-700 hover:bg-red-100"
-                >
-                  <Trash2 className="mr-2" size={14} />
-                  Delete Account
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+          </div>
+                  
         </div>
       </div>
-    </div>
   );
 }

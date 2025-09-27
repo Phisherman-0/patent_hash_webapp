@@ -1,29 +1,29 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { authAPI } from '@/lib/apiService';
+import { authTimeoutService } from '@/services/authTimeoutService';
 
 export interface UserSettings {
-  notifications: {
+  theme?: 'light' | 'dark' | 'system';
+  notifications?: {
     emailUpdates: boolean;
     patentAlerts: boolean;
-    systemNotifications: boolean;
-    marketingEmails: boolean;
+    systemUpdates: boolean;
   };
-  privacy: {
-    profileVisibility: string;
-    dataSharing: boolean;
-    analyticsOptIn: boolean;
+  privacy?: {
+    profileVisibility: 'public' | 'private';
+    shareAnalytics: boolean;
   };
-  preferences: {
-    theme: string;
+  preferences?: {
     language: string;
     timezone: string;
-    currency: string;
+    dateFormat: string;
   };
-  security: {
+  security?: {
     twoFactorEnabled: boolean;
     sessionTimeout: number;
     loginNotifications: boolean;
   };
+  [key: string]: any; // Allow other settings
 }
 
 export interface User {
@@ -32,6 +32,7 @@ export interface User {
   firstName: string;
   lastName: string;
   role: string;
+  profileImageUrl?: string;
   createdAt: string;
   updatedAt: string;
   settings?: UserSettings;
@@ -175,6 +176,8 @@ const authSlice = createSlice({
       state.user = null;
       state.isInitialized = true;
       localStorage.removeItem('patent_hash_user');
+      // Stop session timeout monitoring
+      authTimeoutService.stop();
     },
   },
   extraReducers: (builder) => {
@@ -204,6 +207,8 @@ const authSlice = createSlice({
         state.user = action.payload as User;
         state.isLoading = false;
         state.error = null;
+        // Start session timeout monitoring
+        authTimeoutService.start();
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.isLoading = false;
@@ -218,6 +223,8 @@ const authSlice = createSlice({
         state.user = action.payload as User;
         state.isLoading = false;
         state.error = null;
+        // Start session timeout monitoring
+        authTimeoutService.start();
       })
       .addCase(fetchUser.fulfilled, (state, action) => {
         state.user = action.payload as User;
@@ -233,6 +240,8 @@ const authSlice = createSlice({
         state.user = null;
         state.isLoading = false;
         state.error = null;
+        // Stop session timeout monitoring
+        authTimeoutService.stop();
       });
   },
 });

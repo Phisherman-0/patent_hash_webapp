@@ -107,27 +107,25 @@ export default function Settings() {
 
   // Define default settings
   const defaultSettings: UserSettings = {
+    theme: "system",
     notifications: {
       emailUpdates: true,
       patentAlerts: true,
-      systemNotifications: false,
-      marketingEmails: false,
+      systemUpdates: false,
     },
     privacy: {
       profileVisibility: "private",
-      dataSharing: false,
-      analyticsOptIn: true,
+      shareAnalytics: true,
+    },
+    preferences: {
+      language: "en",
+      timezone: "UTC",
+      dateFormat: "MM/DD/YYYY",
     },
     security: {
       twoFactorEnabled: false,
       sessionTimeout: 30,
       loginNotifications: true,
-    },
-    preferences: {
-      theme: "system",
-      language: "en",
-      timezone: "UTC",
-      currency: "USD",
     },
   };
 

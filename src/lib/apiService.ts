@@ -19,6 +19,31 @@ export interface Patent {
   hashValue?: string;
 }
 
+export interface Consultant {
+  id: string;
+  userId: string;
+  user?: {
+    firstName: string;
+    lastName: string;
+    email: string;
+  };
+  specialization?: string;
+  bio?: string;
+  experienceYears?: number;
+  hourlyRate?: number;
+  availability?: {
+    status: 'available' | 'busy' | 'offline';
+    message?: string;
+  };
+  rating?: number;
+  isVerified: boolean;
+  verifiedBy?: string;
+  verifiedAt?: string;
+  verificationNotes?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface DashboardStats {
   totalPatents: number;
   pendingReviews: number;
@@ -62,12 +87,60 @@ export interface PatentDocument {
   createdAt: string;
 }
 
+export interface Consultant {
+  id: string;
+  userId: string;
+  specialization?: string;
+  bio?: string;
+  experienceYears?: number;
+  hourlyRate?: number;
+  availability?: any;
+  rating?: number;
+  isVerified?: boolean;
+  verifiedBy?: string;
+  verifiedAt?: string;
+  verificationNotes?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface Appointment {
+  id: string;
+  userId: string;
+  consultantId: string;
+  title: string;
+  description?: string;
+  appointmentDate: string;
+  duration: number;
+  status: 'pending' | 'confirmed' | 'completed' | 'cancelled';
+  meetingLink?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ChatRoom {
+  id: string;
+  userId: string;
+  consultantId: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ChatMessage {
+  id: string;
+  chatRoomId: string;
+  senderId: string;
+  message: string;
+  isRead: boolean;
+  createdAt: string;
+}
+
 // Auth API calls
 export const authAPI = {
   login: async (credentials: { email: string; password: string }) => 
     api.post('/auth/login', credentials),
 
-  register: async (userData: { firstName: string; lastName: string; email: string; password: string }) => 
+  register: async (userData: { firstName: string; lastName: string; email: string; password: string; role?: string }) => 
     api.post('/auth/register', userData),
 
   logout: async () => 
@@ -89,19 +162,39 @@ export const authAPI = {
     api.delete('/auth/profile/image'),
 };
 
-// Wallet API calls
+// Wallet API calls - Updated for new database schema
 export const walletAPI = {
+  // HashPack wallet connection
+  connectHashPack: async (connectionData: { 
+    accountId: string; 
+    network: 'testnet' | 'mainnet';
+    sessionData?: any;
+  }) =>
+    api.post('/api/wallet/hashpack/connect', connectionData),
+
+  // Legacy wallet validation (for backward compatibility)
   validate: async (walletConfig: { accountId: string; privateKey: string; network: string }) =>
-    api.post('/wallet/validate', walletConfig),
+    api.post('/api/wallet/validate', walletConfig),
 
-  configure: async (walletConfig: { accountId: string; privateKey: string; network: string }) =>
-    api.post('/wallet/configure', walletConfig),
+  // Get wallet connections for current user
+  getConnections: async () =>
+    api.get('/api/wallet/connections'),
 
-  getStatus: async () =>
-    api.get('/wallet/status'),
+  // Get specific wallet connection status
+  getStatus: async (connectionId?: string) =>
+    api.get(`/wallet/status${connectionId ? `/${connectionId}` : ''}`),
 
-  disconnect: async () =>
-    api.delete('/wallet/disconnect'),
+  // Disconnect wallet
+  disconnect: async (connectionId: string) =>
+    api.delete(`/api/wallet/disconnect/${connectionId}`),
+
+  // Store patent hash using wallet connection
+  storePatentHash: async (data: {
+    patentId: string;
+    connectionId: string;
+    hashValue: string;
+  }) =>
+    api.post('/api/wallet/store-hash', data),
 };
 
 // Dashboard API calls
@@ -193,6 +286,106 @@ export const searchAPI = {
     api.get(`/search/patents?q=${encodeURIComponent(query)}`),
 };
 
+// Consultant API calls
+export const consultantAPI = {
+  getConsultants: (): Promise<Consultant[]> =>
+    api.get('/consultants'),
+  
+  getConsultant: (id: string): Promise<Consultant> =>
+    api.get(`/consultants/${id}`),
+  
+  getConsultantsBySpecialization: (specialization: string): Promise<Consultant[]> =>
+    api.get(`/consultants/specialization/${specialization}`),
+  
+  getConsultantProfile: (): Promise<Consultant> =>
+    api.get('/consultants/profile'),
+  
+  updateConsultantProfile: (data: Partial<Consultant>): Promise<Consultant> =>
+    api.post('/consultants/profile', data),
+    
+  // Admin consultant management
+  getUnverifiedConsultants: (): Promise<Consultant[]> =>
+    api.get('/admin/consultants/unverified'),
+    
+  verifyConsultant: (id: string, notes?: string): Promise<Consultant> =>
+    api.put(`/admin/consultants/${id}/verify`, { notes }),
+    
+  rejectConsultant: (id: string, notes: string): Promise<Consultant> =>
+    api.put(`/admin/consultants/${id}/reject`, { notes }),
+    
+  getConsultantStatus: (id: string): Promise<{ 
+    id: string; 
+    isVerified: boolean; 
+    verifiedBy?: string; 
+    verifiedAt?: string; 
+    verificationNotes?: string 
+  }> =>
+    api.get(`/admin/consultants/${id}/status`),
+};
+
+// Appointment API calls
+export const appointmentAPI = {
+  bookAppointment: (data: {
+    consultantId: string;
+    title: string;
+    description?: string;
+    appointmentDate: string;
+    duration: number;
+  }): Promise<Appointment> =>
+    api.post('/appointments/book', data),
+  
+  getUserAppointments: (): Promise<Appointment[]> =>
+    api.get('/appointments/user'),
+  
+  getConsultantAppointments: (): Promise<Appointment[]> =>
+    api.get('/appointments/consultant'),
+  
+  updateAppointmentStatus: (id: string, status: 'confirmed' | 'cancelled'): Promise<Appointment> =>
+    api.put(`/appointments/${id}/status`, { status }),
+  
+  cancelAppointment: (id: string): Promise<void> =>
+    api.delete(`/appointments/${id}`),
+};
+
+// Chat API calls
+export const chatAPI = {
+  getChatRooms: (): Promise<ChatRoom[]> =>
+    api.get('/chat/rooms'),
+  
+  getChatRoom: (id: string): Promise<ChatRoom> =>
+    api.get(`/chat/rooms/${id}`),
+  
+  createChatRoom: (data: {
+    userId: string;
+    consultantId: string;
+  }): Promise<ChatRoom> =>
+    api.post('/chat/room', data),
+  
+  getChatMessages: (roomId: string): Promise<ChatMessage[]> =>
+    api.get(`/chat/messages/${roomId}`),
+  
+  sendMessage: (data: {
+    chatRoomId: string;
+    message: string;
+  }): Promise<ChatMessage> =>
+    api.post('/chat/messages', data),
+};
+
+// Admin API calls
+export const adminAPI = {
+  getUsers: (): Promise<any[]> =>
+    api.get('/admin/users'),
+  
+  updateUserRole: (id: string, role: string): Promise<any> =>
+    api.put(`/admin/users/${id}/role`, { role }),
+  
+  deleteUser: (id: string): Promise<void> =>
+    api.delete(`/admin/users/${id}`),
+  
+  getAppointments: (): Promise<Appointment[]> =>
+    api.get('/admin/appointments'),
+};
+
 // Combined API service
 export const apiService = {
   auth: authAPI,
@@ -203,6 +396,10 @@ export const apiService = {
   blockchain: blockchainAPI,
   search: searchAPI,
   wallet: walletAPI,
+  consultants: consultantAPI,
+  appointments: appointmentAPI,
+  chat: chatAPI,
+  admin: adminAPI,
 };
 
 export default apiService;

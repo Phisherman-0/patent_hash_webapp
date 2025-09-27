@@ -493,13 +493,27 @@ export default function QuickVerification() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base">
               <Shield className="h-4 w-4" />
-              Blockchain Security
+              Verification Security
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-muted-foreground">
-              Cryptographic verification using Hedera blockchain ensures patent authenticity and tamper-proof timestamps.
-            </p>
+            <div className="text-sm text-muted-foreground">
+              Your verification is secured with blockchain technology:
+            </div>
+            <ul className="mt-2 space-y-1 text-sm">
+              <li className="flex items-center">
+                <div className="w-1.5 h-1.5 bg-green-500 rounded-full mr-2"></div>
+                Cryptographic hash verification
+              </li>
+              <li className="flex items-center">
+                <div className="w-1.5 h-1.5 bg-green-500 rounded-full mr-2"></div>
+                Immutable blockchain storage
+              </li>
+              <li className="flex items-center">
+                <div className="w-1.5 h-1.5 bg-green-500 rounded-full mr-2"></div>
+                Tamper-proof timestamp
+              </li>
+            </ul>
           </CardContent>
         </Card>
 

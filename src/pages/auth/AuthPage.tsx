@@ -25,13 +25,16 @@ const registerSchema = z.object({
   email: z.string().min(1, "Email is required").email("Please enter a valid email address"),
   password: z.string().min(1, "Password is required").min(8, "Password must be at least 8 characters"),
   confirmPassword: z.string().min(1, "Please confirm your password"),
+  role: z.enum(["user", "consultant"]).default("user"),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Passwords don't match",
   path: ["confirmPassword"],
 });
 
 type LoginFormValues = z.infer<typeof loginSchema>;
-type RegisterFormValues = z.infer<typeof registerSchema>;
+type RegisterFormValues = z.infer<typeof registerSchema> & {
+  role: "user" | "consultant";
+};
 
 export default function AuthPage() {
   const [activeTab, setActiveTab] = useState("login");
@@ -65,6 +68,7 @@ export default function AuthPage() {
       email: "",
       password: "",
       confirmPassword: "",
+      role: "user",
     },
   });
 
@@ -77,8 +81,8 @@ export default function AuthPage() {
   const onRegister = async (data: RegisterFormValues) => {
     console.log('Register form data:', data); // Debug log
     dispatch(clearError());
-    const { confirmPassword, ...userData } = data;
-    dispatch(registerUser(userData));
+    const { confirmPassword, role, ...userData } = data;
+    dispatch(registerUser({ ...userData, role }));
   };
 
   return (
@@ -326,6 +330,43 @@ export default function AuthPage() {
                                   >
                                     {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                                   </button>
+                                </div>
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={registerForm.control}
+                          name="role"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel className="text-foreground font-medium">Register As</FormLabel>
+                              <FormControl>
+                                <div className="grid grid-cols-2 gap-4">
+                                  <Button
+                                    type="button"
+                                    variant={field.value === "user" ? "default" : "outline"}
+                                    className={`h-12 rounded-lg ${field.value === "user" ? "bg-orange-500 hover:bg-orange-600 text-white" : "border-border"}`}
+                                    onClick={() => field.onChange("user")}
+                                  >
+                                    <div className="flex flex-col items-center">
+                                      <User className="h-5 w-5 mb-1" />
+                                      <span>Patent Owner</span>
+                                    </div>
+                                  </Button>
+                                  <Button
+                                    type="button"
+                                    variant={field.value === "consultant" ? "default" : "outline"}
+                                    className={`h-12 rounded-lg ${field.value === "consultant" ? "bg-orange-500 hover:bg-orange-600 text-white" : "border-border"}`}
+                                    onClick={() => field.onChange("consultant")}
+                                  >
+                                    <div className="flex flex-col items-center">
+                                      <User className="h-5 w-5 mb-1" />
+                                      <span>Consultant</span>
+                                    </div>
+                                  </Button>
                                 </div>
                               </FormControl>
                               <FormMessage />

@@ -21,64 +21,117 @@ import {
   Fingerprint,
   LogOut,
   Wallet,
+  Calendar,
+  MessageCircle,
+  Users,
+  UserCog,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useAppDispatch, useAppSelector } from "@/hooks/useAppDispatch";
 import { logoutUser } from "@/store/authSlice";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import logo from "../../assets/ph white.png";
+import logo from "../../assets/hash-logo-inverted.png";
 
-const navigationSections = [
-  {
-    title: "Dashboard",
-    items: [
-      { label: "Overview", icon: BarChart3, href: "/", active: true },
-      { label: "Analytics", icon: ChartLine, href: "/analytics" },
-    ],
-  },
-  {
-    title: "Patenting",
-    items: [
-      { label: "File New Patent", icon: PlusCircle, href: "/patents/file" },
-      { label: "AI Patent Valuation", icon: DollarSign, href: "/patents/valuation" },
-      { label: "Drafting Assistant", icon: Edit3, href: "/patents/drafting" },
-    ],
-  },
-  {
-    title: "Portfolio",
-    items: [
-      { label: "My Patents", icon: Folder, href: "/patents/my-patents" },
-      { label: "Status Tracking", icon: ListChecks, href: "/patents/status" },
-      { label: "Document Management", icon: FileText, href: "/patents/documents" },
-    ],
-  },
-  {
-    title: "AI Services",
-    items: [
-      { label: "Prior Art Search", icon: Microscope, href: "/ai/prior-art-search" },
-      { label: "Similarity Detection", icon: Copy, href: "/ai/similarity" },
-      { label: "Classification", icon: Tags, href: "/ai/classification" },
-      { label: "Patent Analytics", icon: Brain, href: "/ai/analytics" },
-    ],
-  },
-  {
-    title: "Security",
-    items: [
-      { label: "Blockchain Verification", icon: Shield, href: "/verification/blockchain" },
-      { label: "Ownership Verification", icon: UserCheck, href: "/verification/ownership" },
-      { label: "Patent Certificates", icon: Award, href: "/verification/certificates" },
-    ],
-  },
-  {
+interface NavItem {
+  label: string;
+  icon: React.ComponentType<{ size?: number }>;
+  href: string;
+}
+
+interface NavSection {
+  title: string;
+  items: NavItem[];
+}
+
+const getUserNavigationSections = (userRole: string): NavSection[] => {
+  const commonSections: NavSection[] = [
+    {
+      title: "Dashboard",
+      items: [
+        { label: "Overview", icon: BarChart3, href: "/" },
+        { label: "Analytics", icon: ChartLine, href: "/analytics" },
+      ],
+    },
+    {
+      title: "Patenting",
+      items: [
+        { label: "File New Patent", icon: PlusCircle, href: "/patents/file" },
+        { label: "AI Patent Valuation", icon: DollarSign, href: "/patents/valuation" },
+        { label: "Drafting Assistant", icon: Edit3, href: "/patents/drafting" },
+      ],
+    },
+    {
+      title: "Portfolio",
+      items: [
+        { label: "My Patents", icon: Folder, href: "/patents/my-patents" },
+        { label: "Status Tracking", icon: ListChecks, href: "/patents/status" },
+        { label: "Document Management", icon: FileText, href: "/patents/documents" },
+      ],
+    },
+    {
+      title: "AI Services",
+      items: [
+        { label: "Prior Art Search", icon: Microscope, href: "/ai/prior-art-search" },
+        { label: "Similarity Detection", icon: Copy, href: "/ai/similarity" },
+        { label: "Classification", icon: Tags, href: "/ai/classification" },
+        { label: "Patent Analytics", icon: Brain, href: "/ai/analytics" },
+      ],
+    },
+    {
+      title: "Security",
+      items: [
+        { label: "Blockchain Verification", icon: Shield, href: "/verification/blockchain" },
+        { label: "Ownership Verification", icon: UserCheck, href: "/verification/ownership" },
+        { label: "Patent Certificates", icon: Award, href: "/verification/certificates" },
+      ],
+    },
+  ];
+
+  // Add role-specific sections
+  if (userRole === 'user') {
+    commonSections.push({
+      title: "Consulting",
+      items: [
+        { label: "Browse Consultants", icon: Users, href: "/consultants/browse" },
+        { label: "My Appointments", icon: Calendar, href: "/consultants/appointments" },
+        { label: "Messages", icon: MessageCircle, href: "/consultants/messages" },
+      ],
+    });
+  }
+
+  if (userRole === 'consultant') {
+    commonSections.push({
+      title: "Consultant",
+      items: [
+        { label: "My Appointments", icon: Calendar, href: "/consultant/appointments" },
+        { label: "Messages", icon: MessageCircle, href: "/consultant/messages" },
+      ],
+    });
+  }
+
+  if (userRole === 'admin') {
+    commonSections.push({
+      title: "Administration",
+      items: [
+        { label: "User Management", icon: UserCog, href: "/admin/users" },
+        { label: "Appointment Management", icon: Calendar, href: "/admin/appointments" },
+      ],
+    });
+  }
+
+  // Add account section for all users
+  commonSections.push({
     title: "Account",
     items: [
       { label: "Profile", icon: User, href: "/profile" },
       { label: "Settings", icon: Settings, href: "/settings" },
       { label: "Wallet", icon: Wallet, href: "/wallet" },
     ],
-  },
-];
+  });
+
+  return commonSections;
+};
 
 interface SidebarProps {
   className?: string;
@@ -89,6 +142,8 @@ export default function Sidebar({ className, onItemClick }: SidebarProps) {
   const [location] = useLocation();
   const dispatch = useAppDispatch();
   const { user } = useAppSelector((state) => state.auth);
+
+  const navigationSections = user ? getUserNavigationSections(user.role) : [];
 
   const getUserInitials = () => {
     if (user?.firstName && user?.lastName) {
@@ -109,7 +164,7 @@ export default function Sidebar({ className, onItemClick }: SidebarProps) {
           {/* <div className="w-6 h-6 md:w-8 md:h-8 bg-white rounded-lg flex items-center justify-center">
             <Fingerprint className="text-primary text-sm md:text-lg" />
           </div> */}
-          <img src={logo} alt="PatentHash Logo" className="h-12 w-14 "/>
+          <img src={logo} alt="PatentHash Logo" className="h-12 w-12 "/>
           <span className="text-white font-bold text-lg md:text-xl">Patent Hash</span>
         </div>
       </div>
@@ -156,11 +211,18 @@ export default function Sidebar({ className, onItemClick }: SidebarProps) {
             </AvatarFallback>
           </Avatar>
           <div className="ml-2 md:ml-3 flex-1 min-w-0">
-            <p className="text-xs md:text-sm font-medium text-foreground truncate">
-              {user?.firstName && user?.lastName 
-                ? `${user.firstName} ${user.lastName}` 
-                : user?.email || "User"}
-            </p>
+            <div className="flex items-center">
+              <p className="text-xs md:text-sm font-medium text-foreground truncate">
+                {user?.firstName && user?.lastName 
+                  ? `${user.firstName} ${user.lastName}` 
+                  : user?.email || "User"}
+              </p>
+              {user?.role && (
+                <span className="ml-2 px-1.5 py-0.5 text-xs rounded-full bg-secondary text-secondary-foreground capitalize">
+                  {user.role}
+                </span>
+              )}
+            </div>
             <p className="text-xs text-muted-foreground truncate hidden md:block">
               {user?.email}
             </p>

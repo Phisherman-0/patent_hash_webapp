@@ -1,4 +1,4 @@
-import { Bell, Plus, Menu } from "lucide-react";
+import { Plus, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLocation, Link } from "wouter";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
@@ -59,11 +59,6 @@ export default function Header({ onMobileMenuToggle }: HeaderProps) {
           {/* Theme Toggle */}
           <ThemeToggle />
 
-          {/* Notifications */}
-          <Button variant="ghost" size="sm" className="relative p-2 text-muted-foreground hover:text-foreground">
-            <Bell size={18} className="md:w-5 md:h-5" />
-            <span className="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-400"></span>
-          </Button>
 
           {/* Quick Actions */}
           <Link href="/patents/file">
