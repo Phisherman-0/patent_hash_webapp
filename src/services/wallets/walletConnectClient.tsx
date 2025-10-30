@@ -193,15 +193,28 @@ export const WalletConnectClient = () => {
   useEffect(() => {
     if (!dappConnector) return;
     
+    let isMounted = true;
+    
     // Sync after walletconnect finishes initializing
-    refreshEvent.addListener("sync", syncWithWalletConnectContext);
+    const handleSync = () => {
+      if (isMounted) {
+        syncWithWalletConnectContext();
+      }
+    };
+    
+    refreshEvent.addListener("sync", handleSync);
 
     initializeWalletConnect().then(() => {
-      syncWithWalletConnectContext();
+      if (isMounted) {
+        syncWithWalletConnectContext();
+      }
+    }).catch((error) => {
+      console.error("Failed to initialize WalletConnect:", error);
     });
 
     return () => {
-      refreshEvent.removeListener("sync", syncWithWalletConnectContext);
+      isMounted = false;
+      refreshEvent.removeListener("sync", handleSync);
     }
   }, [syncWithWalletConnectContext]);
   

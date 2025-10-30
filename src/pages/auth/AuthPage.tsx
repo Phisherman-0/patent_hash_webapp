@@ -163,7 +163,7 @@ export default function AuthPage() {
                               <FormLabel className="text-foreground font-medium">Password</FormLabel>
                               <FormControl>
                                 <div className="relative">
-                                  <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                                  <Lock className="absolute left-2 top-2 h-4 w-4 text-muted-foreground" />
                                   <Input 
                                     type={showLoginPassword ? "text" : "password"}
                                     placeholder="Enter your password"

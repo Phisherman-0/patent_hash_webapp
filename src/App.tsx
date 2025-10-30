@@ -8,8 +8,7 @@ import Layout from "@/components/layout/Layout";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { HashPackWalletProvider } from "@/contexts/HashPackWalletContext";
 import { HederaWalletProvider } from "@/contexts/HederaWalletContext";
-import { WalletConnectContextProvider } from "@/contexts/WalletConnectContext";
-import { WalletConnectClient } from "@/services/wallets/walletConnectClient";
+import { AllWalletsProvider } from "@/services/wallets/AllWalletsProvider";
 import { SessionTimeoutWarning } from "@/components/SessionTimeoutWarning";
 import { useSessionTimeout } from "@/hooks/useSessionTimeout";
 
@@ -99,10 +98,9 @@ function App() {
 
   return (
     <ThemeProvider>
-      <WalletConnectContextProvider>
+      <AllWalletsProvider>
         <HashPackWalletProvider>
           <HederaWalletProvider>
-            <WalletConnectClient />
             <div className="App">
               {/* Testnet Warning Message */}
               <div className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-primary to-primary text-white py-2 px-4 shadow-sm overflow-hidden hover:animate-scroll-paused">
@@ -255,7 +253,7 @@ function App() {
             </div>
           </HederaWalletProvider>
         </HashPackWalletProvider>
-      </WalletConnectContextProvider>
+      </AllWalletsProvider>
     </ThemeProvider>
   );
 }

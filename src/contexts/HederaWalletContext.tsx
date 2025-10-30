@@ -72,7 +72,7 @@ export function HederaWalletProvider({ children }: { children: ReactNode }) {
     } else {
       setWalletInfo(null);
     }
-  }, [hashPackWalletInfo, hashPackError]);
+  }, [hashPackWalletInfo?.accountId, hashPackWalletInfo?.network, hashPackWalletInfo?.isConnected, hashPackError]);
 
   const connect = async (network: 'testnet' | 'mainnet' = 'testnet') => {
     try {
