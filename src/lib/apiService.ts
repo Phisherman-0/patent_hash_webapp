@@ -160,6 +160,12 @@ export const authAPI = {
 
   deleteProfileImage: async () => 
     api.delete('/auth/profile/image'),
+
+  verifyOTP: async (data: { email: string; otp: string }) => 
+    api.post('/auth/verify-otp', data),
+
+  resendOTP: async (data: { email: string }) => 
+    api.post('/auth/resend-otp', data),
 };
 
 // Wallet API calls - Updated for new database schema

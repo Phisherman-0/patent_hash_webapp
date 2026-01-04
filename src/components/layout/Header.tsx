@@ -1,73 +1,117 @@
-import { Plus, Menu } from "lucide-react";
+import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLocation, Link } from "wouter";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { WalletStatus } from "@/components/wallet/WalletStatus";
+import { SidebarTrigger } from "@/components/ui/sidebar";
+import { Separator } from "@/components/ui/separator";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 
-interface HeaderProps {
-  onMobileMenuToggle: () => void;
-}
-
-export default function Header({ onMobileMenuToggle }: HeaderProps) {
+export default function Header() {
   const [location] = useLocation();
 
-  const getPageTitle = () => {
-    const pathMap: Record<string, string> = {
-      '/': 'Dashboard Overview',
-      '/analytics': 'Analytics',
-      '/patents/file': 'File New Patent',
-      '/patents/my-patents': 'My Patents',
-      '/patents/valuation': 'Patent Valuation',
-      '/patents/drafting': 'Patent Drafting',
-      '/patents/status': 'Status Tracking',
-      '/patents/documents': 'Document Management',
-      '/ai/prior-art-search': 'Prior Art Search',
-      '/ai/similarity': 'Similarity Detection',
-      '/ai/classification': 'Classification',
-      '/ai/analytics': 'Patent Analytics',
-      '/verification/blockchain': 'Blockchain Verification',
-      '/verification/ownership': 'Ownership Verification',
-      '/verification/certificates': 'Patent Certificates',
-      '/profile': 'Profile',
-      'Wallet': 'Wallet',
-      '/wallet': 'Wallet',
+  const getBreadcrumbs = () => {
+    const pathMap: Record<string, { label: string; parent?: string }> = {
+      "/": { label: "Dashboard Overview" },
+      "/analytics": { label: "Analytics", parent: "/" },
+      "/patents/file": { label: "File New Patent", parent: "/" },
+      "/patents/my-patents": { label: "My Patents", parent: "/" },
+      "/patents/valuation": { label: "Patent Valuation", parent: "/" },
+      "/patents/drafting": { label: "Patent Drafting", parent: "/" },
+      "/patents/status": { label: "Status Tracking", parent: "/" },
+      "/patents/documents": { label: "Document Management", parent: "/" },
+      "/ai/prior-art-search": { label: "Prior Art Search", parent: "/" },
+      "/ai/similarity": { label: "Similarity Detection", parent: "/" },
+      "/ai/classification": { label: "Classification", parent: "/" },
+      "/ai/analytics": { label: "Patent Analytics", parent: "/" },
+      "/verification/blockchain": { label: "Blockchain Verification", parent: "/" },
+      "/verification/ownership": { label: "Ownership Verification", parent: "/" },
+      "/verification/certificates": { label: "Patent Certificates", parent: "/" },
+      "/profile": { label: "Profile", parent: "/" },
+      "/settings": { label: "Settings", parent: "/" },
+      "/wallet": { label: "Wallet", parent: "/" },
+      "/consultants/browse": { label: "Browse Consultants", parent: "/" },
+      "/consultants/appointments": { label: "My Appointments", parent: "/" },
+      "/consultants/messages": { label: "Messages", parent: "/" },
+      "/consultant/appointments": { label: "My Appointments", parent: "/" },
+      "/consultant/messages": { label: "Messages", parent: "/" },
+      "/admin/users": { label: "User Management", parent: "/" },
+      "/admin/appointments": { label: "Appointment Management", parent: "/" },
     };
+
+    const current = pathMap[location];
+    if (!current) return null;
+
+    const breadcrumbs = [];
     
-    return pathMap[location] || 'Patent Hash';
+    // Add parent if exists
+    if (current.parent && pathMap[current.parent]) {
+      breadcrumbs.push({
+        label: pathMap[current.parent].label,
+        href: current.parent,
+      });
+    }
+
+    // Add current page
+    breadcrumbs.push({
+      label: current.label,
+      href: location,
+      isCurrent: true,
+    });
+
+    return breadcrumbs;
   };
 
+  const breadcrumbs = getBreadcrumbs();
 
   return (
-    <header className="bg-card shadow-sm border-b border-border">
-      <div className="flex items-center justify-between px-3 md:px-6 py-3">
-        <div className="flex items-center">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onMobileMenuToggle}
-            className="lg:hidden mr-4 text-muted-foreground"
-          >
-            <Menu size={20} />
+    <header className="flex h-16 shrink-0 items-center gap-2 border-b bg-background px-4 transition-[width,height] ease-linear group-has-[[data-collapsible=icon]]/sidebar-wrapper:h-12">
+      <div className="flex items-center gap-2 flex-1">
+        <SidebarTrigger className="-ml-1" />
+        <Separator orientation="vertical" className="mr-2 h-4" />
+        {breadcrumbs && breadcrumbs.length > 0 && (
+          <Breadcrumb>
+            <BreadcrumbList>
+              {breadcrumbs.map((crumb, index) => (
+                <div key={crumb.href} className="flex items-center gap-2">
+                  {index > 0 && <BreadcrumbSeparator />}
+                  <BreadcrumbItem>
+                    {crumb.isCurrent ? (
+                      <BreadcrumbPage>{crumb.label}</BreadcrumbPage>
+                    ) : (
+                      <BreadcrumbLink asChild>
+                        <Link href={crumb.href}>{crumb.label}</Link>
+                      </BreadcrumbLink>
+                    )}
+                  </BreadcrumbItem>
+                </div>
+              ))}
+            </BreadcrumbList>
+          </Breadcrumb>
+        )}
+      </div>
+
+      <div className="flex items-center gap-2">
+        {/* Wallet Status */}
+        <WalletStatus />
+
+        {/* Theme Toggle */}
+        <ThemeToggle />
+
+        {/* Quick Actions */}
+        <Link href="/patents/file">
+          <Button className="bg-primary hover:bg-primary-dark text-white px-2 py-2 md:px-4 rounded-lg font-medium transition-colors">
+            <Plus size={16} className="mr-0 md:mr-2" />
+            <span className="hidden md:inline">New Patent</span>
           </Button>
-          <h1 className="hidden md:block text-2xl font-bold text-foreground">{getPageTitle()}</h1>
-        </div>
-        
-        <div className="flex items-center space-x-2 md:space-x-4">
-          {/* Wallet Status */}
-          <WalletStatus />
-
-          {/* Theme Toggle */}
-          <ThemeToggle />
-
-
-          {/* Quick Actions */}
-          <Link href="/patents/file">
-            <Button className="bg-primary hover:bg-primary-dark text-white px-2 py-2 md:px-4 rounded-lg font-medium transition-colors">
-              <Plus size={16} className="mr-0 md:mr-2" />
-              <span className="hidden md:inline">New Patent</span>
-            </Button>
-          </Link>
-        </div>
+        </Link>
       </div>
     </header>
   );

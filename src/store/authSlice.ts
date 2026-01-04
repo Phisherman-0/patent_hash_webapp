@@ -32,6 +32,7 @@ export interface User {
   firstName: string;
   lastName: string;
   role: string;
+  isEmailVerified: boolean;
   profileImageUrl?: string;
   createdAt: string;
   updatedAt: string;
@@ -99,6 +100,12 @@ export const loginUser = createAsyncThunk(
     } catch (error: any) {
       console.error('Login error:', error);
       const message = error?.response?.data?.message || error?.message || 'Login failed';
+      const isUnverified = error?.response?.data?.isUnverified;
+
+      if (isUnverified) {
+        return rejectWithValue({ message, isUnverified: true });
+      }
+
       return rejectWithValue(message);
     }
   }
@@ -212,7 +219,8 @@ const authSlice = createSlice({
       })
       .addCase(loginUser.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.payload as string;
+        const payload = action.payload as any;
+        state.error = typeof payload === 'string' ? payload : (payload?.message || 'Login failed');
       })
       // Register
       .addCase(registerUser.pending, (state) => {

@@ -17,7 +17,9 @@ import Dashboard from "@/pages/Dashboard";
 import Profile from "@/pages/Profile";
 import Settings from "@/pages/Settings";
 import Analytics from "@/pages/Analytics";
-import AuthPage from "@/pages/auth/AuthPage";
+import LoginPage from "@/pages/auth/LoginPage";
+import SignupPage from "@/pages/auth/SignupPage";
+import OTPVerificationPage from "@/pages/auth/OTPVerificationPage";
 
 // Patents
 import FilePatent from "@/pages/patents/FilePatent";
@@ -103,153 +105,155 @@ function App() {
           <HederaWalletProvider>
             <div className="App">
               {/* Testnet Warning Message */}
-              <div className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-primary to-primary text-white py-2 px-4 shadow-sm overflow-hidden hover:animate-scroll-paused">
+              {/* <div className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-primary to-primary text-white py-2 px-4 shadow-sm overflow-hidden hover:animate-scroll-paused">
                 <div className="flex items-center whitespace-nowrap animate-scroll">
                   <span className="text-sm font-medium">
                     ⚠️ WARNING: This application is under development. Please use ONLY TESTNET wallets for testing purposes. Do not use mainnet wallets or real funds. ⚠️
                   </span>
                 </div>
-              </div>
-            <Router>
-              <Switch>
-                {/* Login route */}
-                <Route path="/login" component={AuthPage} />
+              </div> */}
+              <Router>
+                <Switch>
+                  {/* Auth routes */}
+                  <Route path="/login" component={LoginPage} />
+                  <Route path="/signup" component={SignupPage} />
+                  <Route path="/verify-email" component={OTPVerificationPage} />
 
-                {/* Redirect root to login if not authenticated */}
-                {!user ? (
-                  <Route path="/">
-                    <Redirect to="/login" />
-                  </Route>
-                ) : (
-                  <>
-                    {/* Protected routes wrapped in Layout */}
-                    <ProtectedRoute>
-                      <Layout>
-                        <Route path="/" component={Dashboard} />
-                        <Route path="/profile" component={Profile} />
-                        <Route path="/settings" component={Settings} />
-                        <Route path="/wallet">
-                          <WalletSettings />
-                        </Route>
-                        <Route path="/wallet-test" component={WalletTest} />
-                        <Route path="/analytics" component={Analytics} />
+                  {/* Redirect root to login if not authenticated */}
+                  {!user ? (
+                    <Route path="/">
+                      <Redirect to="/login" />
+                    </Route>
+                  ) : (
+                    <>
+                      {/* Protected routes wrapped in Layout */}
+                      <ProtectedRoute>
+                        <Layout>
+                          <Route path="/" component={Dashboard} />
+                          <Route path="/profile" component={Profile} />
+                          <Route path="/settings" component={Settings} />
+                          <Route path="/wallet">
+                            <WalletSettings />
+                          </Route>
+                          <Route path="/wallet-test" component={WalletTest} />
+                          <Route path="/analytics" component={Analytics} />
 
-                        {/* Patents Routes */}
-                        <Route path="/patents/file" component={FilePatent} />
-                        <Route
-                          path="/patents/my-patents"
-                          component={MyPatents}
-                        />
-                        <Route
-                          path="/patents/status"
-                          component={StatusTracking}
-                        />
-                        <Route
-                          path="/patents/valuation"
-                          component={PatentValuation}
-                        />
-                        <Route
-                          path="/patents/documents"
-                          component={DocumentManagement}
-                        />
-                        <Route
-                          path="/patents/drafting"
-                          component={DraftingAssistant}
-                        />
-
-                        {/* AI Features Routes */}
-                        <Route
-                          path="/ai/prior-art-search"
-                          component={PriorArtSearch}
-                        />
-                        <Route
-                          path="/ai/similarity"
-                          component={SimilarityDetection}
-                        />
-                        <Route
-                          path="/ai/classification"
-                          component={Classification}
-                        />
-                        <Route
-                          path="/ai/analytics"
-                          component={PatentAnalytics}
-                        />
-
-                        {/* Verification Routes */}
-                        <Route
-                          path="/verification/blockchain"
-                          component={BlockchainVerification}
-                        />
-                        <Route
-                          path="/verification/ownership"
-                          component={OwnershipVerification}
-                        />
-                        <Route
-                          path="/verification/certificates"
-                          component={PatentCertificates}
-                        />
-
-                        {/* Consultant Routes */}
-                        <Route
-                          path="/consultant/appointments"
-                          component={ConsultantAppointments}
-                        />
-
-                        {/* User Consultant Routes */}
-                        <Route
-                          path="/consultants/browse"
-                          component={BrowseConsultants}
-                        />
-                        <Route
-                          path="/consultants/appointments"
-                          component={UserAppointments}
-                        />
-
-                        {/* Chat Routes */}
-                        <Route
-                          path="/consultants/messages"
-                          component={ChatPage}
-                        />
-                        <Route
-                          path="/consultant/messages"
-                          component={ChatPage}
-                        />
-
-                        {/* Admin Routes */}
-                        {user.role === 'admin' && (
+                          {/* Patents Routes */}
+                          <Route path="/patents/file" component={FilePatent} />
                           <Route
-                            path="/admin/users"
-                            component={AdminPanel}
+                            path="/patents/my-patents"
+                            component={MyPatents}
                           />
-                        )}
-                        {user.role === 'admin' && (
                           <Route
-                            path="/admin/appointments"
-                            component={AdminPanel}
+                            path="/patents/status"
+                            component={StatusTracking}
                           />
-                        )}
-                      </Layout>
-                    </ProtectedRoute>
-                  </>
-                )}
+                          <Route
+                            path="/patents/valuation"
+                            component={PatentValuation}
+                          />
+                          <Route
+                            path="/patents/documents"
+                            component={DocumentManagement}
+                          />
+                          <Route
+                            path="/patents/drafting"
+                            component={DraftingAssistant}
+                          />
 
-                {/* Fallback */}
-                <Route component={NotFound} />
-              </Switch>
-            </Router>
-            <SessionTimeoutWarning
-              isOpen={showTimeoutWarning}
-              timeRemaining={timeRemaining}
-              onExtendSession={() => {
-                setShowTimeoutWarning(false);
-                resetTimeout();
-              }}
-              onLogout={() => {
-                setShowTimeoutWarning(false);
-                dispatch(logoutUser());
-              }}
-            />
-            <Toaster />
+                          {/* AI Features Routes */}
+                          <Route
+                            path="/ai/prior-art-search"
+                            component={PriorArtSearch}
+                          />
+                          <Route
+                            path="/ai/similarity"
+                            component={SimilarityDetection}
+                          />
+                          <Route
+                            path="/ai/classification"
+                            component={Classification}
+                          />
+                          <Route
+                            path="/ai/analytics"
+                            component={PatentAnalytics}
+                          />
+
+                          {/* Verification Routes */}
+                          <Route
+                            path="/verification/blockchain"
+                            component={BlockchainVerification}
+                          />
+                          <Route
+                            path="/verification/ownership"
+                            component={OwnershipVerification}
+                          />
+                          <Route
+                            path="/verification/certificates"
+                            component={PatentCertificates}
+                          />
+
+                          {/* Consultant Routes */}
+                          <Route
+                            path="/consultant/appointments"
+                            component={ConsultantAppointments}
+                          />
+
+                          {/* User Consultant Routes */}
+                          <Route
+                            path="/consultants/browse"
+                            component={BrowseConsultants}
+                          />
+                          <Route
+                            path="/consultants/appointments"
+                            component={UserAppointments}
+                          />
+
+                          {/* Chat Routes */}
+                          <Route
+                            path="/consultants/messages"
+                            component={ChatPage}
+                          />
+                          <Route
+                            path="/consultant/messages"
+                            component={ChatPage}
+                          />
+
+                          {/* Admin Routes */}
+                          {user.role === 'admin' && (
+                            <Route
+                              path="/admin/users"
+                              component={AdminPanel}
+                            />
+                          )}
+                          {user.role === 'admin' && (
+                            <Route
+                              path="/admin/appointments"
+                              component={AdminPanel}
+                            />
+                          )}
+                        </Layout>
+                      </ProtectedRoute>
+                    </>
+                  )}
+
+                  {/* Fallback */}
+                  <Route component={NotFound} />
+                </Switch>
+              </Router>
+              <SessionTimeoutWarning
+                isOpen={showTimeoutWarning}
+                timeRemaining={timeRemaining}
+                onExtendSession={() => {
+                  setShowTimeoutWarning(false);
+                  resetTimeout();
+                }}
+                onLogout={() => {
+                  setShowTimeoutWarning(false);
+                  dispatch(logoutUser());
+                }}
+              />
+              <Toaster />
             </div>
           </HederaWalletProvider>
         </HashPackWalletProvider>
