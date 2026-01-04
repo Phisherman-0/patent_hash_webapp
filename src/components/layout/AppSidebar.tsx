@@ -181,7 +181,7 @@ export function AppSidebar() {
         </div>
       </SidebarHeader>
 
-      <SidebarContent>
+      <SidebarContent className="scrollbar-thin">
         {navigationSections.map((section) => (
           <SidebarGroup key={section.title}>
             <SidebarGroupLabel>{section.title}</SidebarGroupLabel>
@@ -193,9 +193,14 @@ export function AppSidebar() {
 
                   return (
                     <SidebarMenuItem key={item.href}>
-                      <SidebarMenuButton asChild isActive={isActive} tooltip={item.label}>
+                      <SidebarMenuButton
+                        asChild
+                        isActive={isActive}
+                        tooltip={item.label}
+                        className={isActive ? "!text-primary !bg-gray-100 dark:!bg-gray-800 hover:!bg-gray-100 dark:hover:!bg-gray-800" : ""}
+                      >
                         <Link href={item.href}>
-                          <Icon className="h-4 w-4" />
+                          <Icon className={`h-4 w-4 ${isActive ? "!text-primary" : ""}`} />
                           <span>{item.label}</span>
                         </Link>
                       </SidebarMenuButton>

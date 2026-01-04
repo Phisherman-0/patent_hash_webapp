@@ -14,12 +14,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import { 
-  FileText, 
-  Search, 
-  Filter, 
-  Eye, 
-  Download, 
+import {
+  FileText,
+  Search,
+  Filter,
+  Eye,
+  Download,
   Shield,
   Brain,
   Plus,
@@ -134,7 +134,7 @@ export default function MyPatents() {
       link.click();
       link.remove();
       window.URL.revokeObjectURL(url);
-      
+
       toast({
         title: "Download started",
         description: `Downloading ${doc.fileName}`,
@@ -208,13 +208,13 @@ export default function MyPatents() {
   });
 
   const formatCategoryName = (category: string) => {
-    return category.split('_').map(word => 
+    return category.split('_').map(word =>
       word.charAt(0).toUpperCase() + word.slice(1)
     ).join(' ');
   };
 
   const formatStatusName = (status: string) => {
-    return status.split('_').map(word => 
+    return status.split('_').map(word =>
       word.charAt(0).toUpperCase() + word.slice(1)
     ).join(' ');
   };
@@ -231,10 +231,10 @@ export default function MyPatents() {
 
   const filteredPatents = patents?.filter((patent: Patent) => {
     const matchesSearch = patent.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         patent.description.toLowerCase().includes(searchQuery.toLowerCase());
+      patent.description.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = selectedCategory === "all" || patent.category === selectedCategory;
     const matchesStatus = selectedStatus === "all" || patent.status === selectedStatus;
-    
+
     return matchesSearch && matchesCategory && matchesStatus;
   }) || [];
 
@@ -345,7 +345,7 @@ export default function MyPatents() {
               <FileText className="mx-auto h-12 w-12 text-muted-foreground" />
               <h3 className="mt-2 text-sm font-medium text-foreground">No patents found</h3>
               <p className="mt-1 text-sm text-muted-foreground">
-                {patents && patents.length === 0 
+                {patents && patents.length === 0
                   ? "Get started by filing your first patent."
                   : "Try adjusting your search criteria."
                 }
@@ -362,94 +362,170 @@ export default function MyPatents() {
               )}
             </div>
           ) : (
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Patent</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Category</TableHead>
-                    <TableHead>Value</TableHead>
-                    <TableHead>Filed Date</TableHead>
-                    <TableHead>Blockchain</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredPatents.map((patent: Patent) => {
-                    const CategoryIcon = categoryIcons[patent.category] || FileText;
-                    
-                    return (
-                      <TableRow key={patent.id} className="hover:bg-accent">
-                        <TableCell>
+            <div className="flex flex-col gap-4">
+              {/* Mobile Card View */}
+              <div className="grid grid-cols-1 gap-4 md:hidden">
+                {filteredPatents.map((patent: Patent) => {
+                  const CategoryIcon = categoryIcons[patent.category] || FileText;
+                  return (
+                    <Card key={patent.id}>
+                      <CardContent className="p-4 space-y-4">
+                        <div className="flex items-start justify-between">
                           <div className="flex items-center space-x-3">
                             <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
                               <CategoryIcon className="text-primary" size={20} />
                             </div>
                             <div className="min-w-0">
-                              <div className="text-sm font-medium text-foreground truncate">
-                                {patent.title}
-                              </div>
-                              <div className="text-sm text-muted-foreground truncate">
-                                {patent.patentNumber || `ID: ${patent.id.slice(0, 8)}...`}
-                              </div>
+                              <div className="font-medium text-foreground truncate">{patent.title}</div>
+                              <div className="text-xs text-muted-foreground truncate">{patent.patentNumber || `ID: ${patent.id.slice(0, 8)}...`}</div>
                             </div>
                           </div>
-                        </TableCell>
-                        <TableCell>
                           <Badge className={statusColors[patent.status] || statusColors.draft}>
                             {formatStatusName(patent.status)}
                           </Badge>
-                        </TableCell>
-                        <TableCell className="text-sm text-foreground">
-                          {formatCategoryName(patent.category)}
-                        </TableCell>
-                        <TableCell className="text-sm font-medium text-foreground">
-                          {formatCurrency(patent.estimatedValue)}
-                        </TableCell>
-                        <TableCell className="text-sm text-muted-foreground">
-                          {formatDate(patent.filedAt || patent.createdAt)}
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center justify-center space-x-1">
-                            {patent.hederaTopicId && (
-                              <Shield className="text-green-600" size={16} />
-                            )}
-                            {patent.hederaNftId && (
-                              <Badge variant="secondary" className="text-xs">NFT</Badge>
-                            )}
-                            {!patent.hederaTopicId && (
-                              <span className="text-muted-foreground text-xs">Not secured</span>
-                            )}
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-2 text-sm">
+                          <div>
+                            <span className="text-muted-foreground block text-xs">Category</span>
+                            {formatCategoryName(patent.category)}
                           </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex items-center space-x-2">
-                            <Button 
-                              variant="ghost" 
-                              size="sm"
-                              onClick={() => handleViewPatent(patent)}
-                            >
-                              <Eye size={16} />
-                            </Button>
-                            <Button variant="ghost" size="sm">
-                              <Download size={16} />
-                            </Button>
-                            <Button 
-                              variant="ghost" 
-                              size="sm"
-                              onClick={() => handleDeleteClick(patent.id)}
-                              disabled={deleteMutation.isPending}
-                            >
-                              <Trash2 size={16} />
-                            </Button>
+                          <div>
+                            <span className="text-muted-foreground block text-xs">Value</span>
+                            {formatCurrency(patent.estimatedValue)}
                           </div>
-                        </TableCell>
-                      </TableRow>
-                    );
-                  })}
-                </TableBody>
-              </Table>
+                          <div>
+                            <span className="text-muted-foreground block text-xs">Filed Date</span>
+                            {formatDate(patent.filedAt || patent.createdAt)}
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground block text-xs">Security</span>
+                            <div className="flex items-center gap-1">
+                              {patent.hederaTopicId ? (
+                                <Shield className="text-green-600" size={14} />
+                              ) : (
+                                <span className="text-muted-foreground">Not secured</span>
+                              )}
+                              {patent.hederaNftId && (
+                                <Badge variant="secondary" className="text-[10px] h-5 px-1">NFT</Badge>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex justify-end gap-2 pt-2 border-t mt-2">
+                          <Button variant="ghost" size="sm" onClick={() => handleViewPatent(patent)}>
+                            <Eye size={16} className="mr-2" /> View
+                          </Button>
+                          <Button variant="ghost" size="sm">
+                            <Download size={16} className="mr-2" /> Doc
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="text-red-500 hover:text-red-600 hover:bg-red-50"
+                            onClick={() => handleDeleteClick(patent.id)}
+                            disabled={deleteMutation.isPending}
+                          >
+                            <Trash2 size={16} className="mr-2" /> Delete
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+
+              {/* Desktop Table View */}
+              <div className="hidden md:block overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Patent</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Category</TableHead>
+                      <TableHead>Value</TableHead>
+                      <TableHead>Filed Date</TableHead>
+                      <TableHead>Blockchain</TableHead>
+                      <TableHead>Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredPatents.map((patent: Patent) => {
+                      const CategoryIcon = categoryIcons[patent.category] || FileText;
+
+                      return (
+                        <TableRow key={patent.id} className="hover:bg-accent">
+                          <TableCell>
+                            <div className="flex items-center space-x-3">
+                              <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
+                                <CategoryIcon className="text-primary" size={20} />
+                              </div>
+                              <div className="min-w-0">
+                                <div className="text-sm font-medium text-foreground truncate">
+                                  {patent.title}
+                                </div>
+                                <div className="text-sm text-muted-foreground truncate">
+                                  {patent.patentNumber || `ID: ${patent.id.slice(0, 8)}...`}
+                                </div>
+                              </div>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <Badge className={statusColors[patent.status] || statusColors.draft}>
+                              {formatStatusName(patent.status)}
+                            </Badge>
+                          </TableCell>
+                          <TableCell className="text-sm text-foreground">
+                            {formatCategoryName(patent.category)}
+                          </TableCell>
+                          <TableCell className="text-sm font-medium text-foreground">
+                            {formatCurrency(patent.estimatedValue)}
+                          </TableCell>
+                          <TableCell className="text-sm text-muted-foreground">
+                            {formatDate(patent.filedAt || patent.createdAt)}
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center justify-center space-x-1">
+                              {patent.hederaTopicId && (
+                                <Shield className="text-green-600" size={16} />
+                              )}
+                              {patent.hederaNftId && (
+                                <Badge variant="secondary" className="text-xs">NFT</Badge>
+                              )}
+                              {!patent.hederaTopicId && (
+                                <span className="text-muted-foreground text-xs">Not secured</span>
+                              )}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex items-center space-x-2">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleViewPatent(patent)}
+                              >
+                                <Eye size={16} />
+                              </Button>
+                              <Button variant="ghost" size="sm">
+                                <Download size={16} />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleDeleteClick(patent.id)}
+                                disabled={deleteMutation.isPending}
+                              >
+                                <Trash2 size={16} />
+                              </Button>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </div>
             </div>
           )}
         </CardContent>
@@ -474,7 +550,7 @@ export default function MyPatents() {
               Patent ID: {selectedPatent?.patentNumber || selectedPatent?.id}
             </DialogDescription>
           </DialogHeader>
-          
+
           {selectedPatent && (
             <div className="space-y-6">
               {/* Basic Information */}
@@ -495,7 +571,7 @@ export default function MyPatents() {
                     <p className="text-sm font-medium">{formatCurrency(selectedPatent.estimatedValue)}</p>
                   </div>
                 </div>
-                
+
                 <div className="space-y-4">
                   <div>
                     <h4 className="font-semibold text-sm text-muted-foreground mb-2">Filed Date</h4>
@@ -525,7 +601,7 @@ export default function MyPatents() {
                   )}
                 </div>
               </div>
-              
+
               {/* Description */}
               <div>
                 <h4 className="font-semibold text-sm text-muted-foreground mb-2">Description</h4>
@@ -533,7 +609,7 @@ export default function MyPatents() {
                   <p className="text-sm whitespace-pre-wrap">{selectedPatent.description}</p>
                 </div>
               </div>
-              
+
               {/* Documents Section */}
               <div>
                 <h4 className="font-semibold text-sm text-muted-foreground mb-2">Documents</h4>
@@ -577,13 +653,13 @@ export default function MyPatents() {
               </div>
             </div>
           )}
-          
+
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowPatentModal(false)}>
               Close
             </Button>
             {selectedPatent && !selectedPatent.hederaNftId && (
-              <Button 
+              <Button
                 onClick={() => mintNFTMutation.mutate(selectedPatent.id)}
                 disabled={mintNFTMutation.isPending}
                 className="mr-2"
@@ -614,7 +690,7 @@ export default function MyPatents() {
             <AlertDialogCancel onClick={() => setShowDeleteDialog(false)}>
               Cancel
             </AlertDialogCancel>
-            <AlertDialogAction 
+            <AlertDialogAction
               onClick={handleConfirmDelete}
               className="bg-red-600 hover:bg-red-700"
             >
