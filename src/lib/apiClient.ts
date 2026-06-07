@@ -2,21 +2,9 @@ import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse, AxiosError } f
 
 // Environment-based API URL configuration
 const getApiBaseUrl = () => {
-  // Check if we're in production build
-  const isProduction = import.meta.env.PROD;
-  
-  // Use environment variable if available
-  if (import.meta.env.VITE_API_BASE_URL) {
-    return import.meta.env.VITE_API_BASE_URL;
-  }
-  
-  // Production: use same origin (backend serves frontend)
-  if (isProduction) {
-    return window.location.origin;
-  }
-  
-  // Development: use localhost backend
-  return 'http://localhost:5000';
+  // Use relative URL to leverage Vite proxy in development
+  // and same-origin paths in production.
+  return ''; 
 };
 
 const API_BASE_URL = getApiBaseUrl();
@@ -30,16 +18,10 @@ const apiClient: AxiosInstance = axios.create({
   },
 });
 
-// Request interceptor
+// Request interceptor - no longer needed for tokens as we use HttpOnly cookies
+// But we keep it empty for future needs (intercepting errors etc.)
 apiClient.interceptors.request.use(
-  (config) => {
-    // You can add auth tokens here if needed
-    // const token = localStorage.getItem('authToken');
-    // if (token) {
-    //   config.headers.Authorization = `Bearer ${token}`;
-    // }
-    return config;
-  },
+  (config) => config,
   (error: AxiosError) => {
     return Promise.reject(error);
   }
@@ -58,10 +40,9 @@ apiClient.interceptors.response.use(
       const message = responseData?.message || error.message;
       
       if (status === 401) {
-        // Handle unauthorized - only redirect if not already on login page
-        if (typeof window !== 'undefined' && !window.location.pathname.includes('/login')) {
-          window.location.href = '/login';
-        }
+        // Handle unauthorized silently in the interceptor
+        // Let the application (Redux thunks) handle the redirect
+        console.log('UNAUTHORIZED REQUEST - 401');
       }
       
       return Promise.reject({

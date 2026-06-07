@@ -2,8 +2,8 @@ import { store } from '@/store';
 import { logoutUser } from '@/store/authSlice';
 
 class AuthTimeoutService {
-  private timeoutId: NodeJS.Timeout | null = null;
-  private warningTimeoutId: NodeJS.Timeout | null = null;
+  private timeoutId: ReturnType<typeof setTimeout> | null = null;
+  private warningTimeoutId: ReturnType<typeof setTimeout> | null = null;
   private readonly TIMEOUT_DURATION = 60 * 60 * 1000; // 1 hour in milliseconds
   private readonly WARNING_DURATION = 55 * 60 * 1000; // 55 minutes - warn 5 minutes before logout
   private lastActivity = Date.now();

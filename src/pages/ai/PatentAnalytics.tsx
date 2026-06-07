@@ -17,7 +17,7 @@ const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82CA9D'
 
 // Helper functions for real data calculations
 const formatCategoryName = (category: string) => {
-  return category.split('_').map(word => 
+  return category.split('_').map(word =>
     word.charAt(0).toUpperCase() + word.slice(1)
   ).join(' ');
 };
@@ -62,7 +62,7 @@ const getMarketPosition = (score: number) => {
 
 const generateRecommendations = (patents: any[], categoryStats: any[], portfolioStrength: any) => {
   const recommendations = [];
-  
+
   if (categoryStats.length < 3) {
     recommendations.push({
       type: "diversification",
@@ -72,7 +72,7 @@ const generateRecommendations = (patents: any[], categoryStats: any[], portfolio
       impact: "Portfolio diversification and risk reduction"
     });
   }
-  
+
   if (portfolioStrength.factors.commercialPotential < 6) {
     recommendations.push({
       type: "commercialization",
@@ -82,8 +82,8 @@ const generateRecommendations = (patents: any[], categoryStats: any[], portfolio
       impact: "Revenue generation and market penetration"
     });
   }
-  
-  if (patents.length > 0 && patents.filter(p => p.hederaTopicId).length / patents.length < 0.5) {
+
+  if (patents.length > 0 && patents.filter(p => (p as any).blockchainTxHash).length / patents.length < 0.5) {
     recommendations.push({
       type: "protection",
       priority: "High",
@@ -92,7 +92,7 @@ const generateRecommendations = (patents: any[], categoryStats: any[], portfolio
       impact: "Enhanced legal protection and verification"
     });
   }
-  
+
   return recommendations;
 };
 
@@ -123,13 +123,13 @@ export default function PatentAnalytics() {
     queryKey: ['ai-analytics', selectedPatent],
     queryFn: async () => {
       if (!patents || patents.length === 0) return [];
-      
+
       // Get AI analysis for all patents
-      const analysisPromises = patents.map((patent: any) => 
+      const analysisPromises = patents.map((patent: any) =>
         patentAPI.getAIAnalysis(patent.id)
           .catch(() => [])
       );
-      
+
       const allAnalyses = await Promise.all(analysisPromises);
       return allAnalyses.flat();
     },
@@ -144,26 +144,26 @@ export default function PatentAnalytics() {
     const safeUserStats = userStats || { totalPatents: 0, portfolioValue: '0' };
 
     // Calculate portfolio strength based on real AI analysis
-    const avgConfidence = safeAiAnalytics.length > 0 
+    const avgConfidence = safeAiAnalytics.length > 0
       ? safeAiAnalytics.reduce((sum: number, analysis: any) => {
-          const confidence = parseFloat(analysis.confidence) || 0;
-          return sum + confidence;
-        }, 0) / safeAiAnalytics.length
+        const confidence = parseFloat(analysis.confidence) || 0;
+        return sum + confidence;
+      }, 0) / safeAiAnalytics.length
       : 0.75;
 
     const portfolioStrength = {
       score: Math.min(avgConfidence * 10, 10), // Convert to 0-10 scale
       factors: {
         diversity: Math.min(safeCategoryStats.length * 1.5, 10),
-        marketRelevance: safePatents.length > 0 
+        marketRelevance: safePatents.length > 0
           ? Math.min(safePatents.reduce((sum: number, patent: any) => {
-              return sum + (parseFloat(patent.estimatedValue) || 0);
-            }, 0) / safePatents.length / 50000, 10)
+            return sum + (parseFloat(patent.estimatedValue) || 0);
+          }, 0) / safePatents.length / 50000, 10)
           : 5,
-        technicalNovelty: safePatents.length > 0 
+        technicalNovelty: safePatents.length > 0
           ? Math.min(safeAiAnalytics.filter((a: any) => a.analysisType === 'classification').length / safePatents.length * 10, 10)
           : 5,
-        commercialPotential: safePatents.length > 0 
+        commercialPotential: safePatents.length > 0
           ? Math.min(safePatents.filter((p: any) => parseFloat(p.estimatedValue) > 100000).length / safePatents.length * 10, 10)
           : 5,
       }
@@ -185,25 +185,25 @@ export default function PatentAnalytics() {
 
     // Risk assessment based on real data
     const riskAssessment = [
-      { 
-        category: "Patent Expiration", 
-        risk: calculateExpirationRisk(safePatents), 
-        impact: "Medium" 
+      {
+        category: "Patent Expiration",
+        risk: calculateExpirationRisk(safePatents),
+        impact: "Medium"
       },
-      { 
-        category: "Prior Art Conflicts", 
-        risk: safeAiAnalytics.filter(a => a.analysisType === 'prior_art').length > 0 ? 15 : 25, 
-        impact: "High" 
+      {
+        category: "Prior Art Conflicts",
+        risk: safeAiAnalytics.filter(a => a.analysisType === 'prior_art').length > 0 ? 15 : 25,
+        impact: "High"
       },
-      { 
-        category: "Market Competition", 
-        risk: 60, 
-        impact: "Medium" 
+      {
+        category: "Market Competition",
+        risk: 60,
+        impact: "Medium"
       },
-      { 
-        category: "Technology Obsolescence", 
-        risk: calculateObsolescenceRisk(safeCategoryStats), 
-        impact: "Low" 
+      {
+        category: "Technology Obsolescence",
+        risk: calculateObsolescenceRisk(safeCategoryStats),
+        impact: "Low"
       },
     ];
 
@@ -474,8 +474,8 @@ export default function PatentAnalytics() {
                 <BarChart data={analytics.valuationTrends}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="category" />
-                  <YAxis tickFormatter={(value) => `$${(value/1000).toFixed(0)}K`} />
-                  <Tooltip 
+                  <YAxis tickFormatter={(value) => `$${(value / 1000).toFixed(0)}K`} />
+                  <Tooltip
                     formatter={(value: any, name: string) => [
                       name === 'value' ? `$${value.toLocaleString()}` : `${value}%`,
                       name === 'value' ? 'Portfolio Value' : 'Growth Rate'
@@ -509,11 +509,11 @@ export default function PatentAnalytics() {
                   <YAxis yAxisId="right" orientation="right" />
                   <Tooltip />
                   <Bar yAxisId="left" dataKey="filings" fill="#8884d8" />
-                  <Line 
-                    yAxisId="right" 
-                    type="monotone" 
-                    dataKey="strength" 
-                    stroke="#82ca9d" 
+                  <Line
+                    yAxisId="right"
+                    type="monotone"
+                    dataKey="strength"
+                    stroke="#82ca9d"
                     strokeWidth={3}
                   />
                 </LineChart>
@@ -582,10 +582,10 @@ export default function PatentAnalytics() {
                       <div className="space-y-3">
                         <div className="flex items-center justify-between">
                           <h4 className="font-semibold">{risk.category}</h4>
-                          <Badge 
+                          <Badge
                             variant={
-                              risk.impact === "High" ? "destructive" : 
-                              risk.impact === "Medium" ? "default" : "secondary"
+                              risk.impact === "High" ? "destructive" :
+                                risk.impact === "Medium" ? "default" : "secondary"
                             }
                           >
                             {risk.impact} Impact

@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useAppSelector } from '@/hooks/useAppDispatch';
+import { api } from '@/lib/apiClient';
 
 type Theme = 'light' | 'dark' | 'system';
 
@@ -29,7 +30,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
           return;
         }
       }
-      
+
       // Fallback to localStorage theme if no database theme
       const savedTheme = localStorage.getItem('theme') as Theme;
       if (savedTheme && ['light', 'dark', 'system'].includes(savedTheme)) {
@@ -65,10 +66,10 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
       const root = document.documentElement;
       root.classList.remove('light', 'dark');
       root.classList.add(actualTheme);
-      
+
       // Save theme preference to localStorage
       localStorage.setItem('theme', theme);
-      
+
       // Save theme preference to backend
       saveThemePreference(theme);
     }
@@ -79,19 +80,12 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     if (!user) {
       return;
     }
-    
+
     try {
-      await fetch('/api/auth/user/settings', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
+      await api.put('/auth/user/settings', {
+        settings: {
+          theme: newTheme,
         },
-        credentials: 'include',
-        body: JSON.stringify({
-          settings: {
-            theme: newTheme,
-          },
-        }),
       });
     } catch (error) {
       console.error('Failed to save theme preference:', error);

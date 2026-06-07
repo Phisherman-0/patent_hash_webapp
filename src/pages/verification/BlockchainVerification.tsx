@@ -1,40 +1,23 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
-import { blockchainAPI, patentAPI } from "@/lib/apiService";
+import { blockchainAPI, patentAPI, Patent } from "@/lib/apiService";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { 
-  Shield, 
+import {
+  Shield,
   Search,
   CheckCircle,
   XCircle,
   Clock,
-  Hash,
   Link as LinkIcon,
-  FileText,
-  Calendar,
-  User,
   ExternalLink,
   Copy,
   AlertTriangle,
   Fingerprint,
 } from "lucide-react";
-
-interface Patent {
-  id: string;
-  title: string;
-  status: string;
-  hederaTopicId?: string;
-  hederaMessageId?: string;
-  hederaNftId?: string;
-  hashValue?: string;
-  createdAt: string;
-  filedAt?: string;
-}
 
 interface VerificationResult {
   verified: boolean;
@@ -54,8 +37,8 @@ export default function BlockchainVerification() {
     retry: false,
   });
 
-  const blockchainSecuredPatents = patents?.filter((patent: Patent) => 
-    patent.hederaTopicId && patent.hederaMessageId
+  const blockchainSecuredPatents = patents?.filter((patent: Patent) =>
+    patent.blockchainTxHash
   ) || [];
 
   const handleVerifyPatent = async (patentId: string) => {
@@ -63,18 +46,18 @@ export default function BlockchainVerification() {
     setVerificationResult(null);
 
     try {
-      const result = await blockchainAPI.verifyPatent(patentId);
+      const result = await blockchainAPI.verifyPatent(patentId) as any;
       setVerificationResult(result);
 
       if (result.verified) {
         toast({
           title: "Verification successful",
-          description: "Patent integrity confirmed on blockchain.",
+          description: "Patent integrity confirmed on Base blockchain.",
         });
       } else {
         toast({
           title: "Verification failed",
-          description: result.message,
+          description: result.message || "Integrity check failed",
           variant: "destructive",
         });
       }
@@ -109,7 +92,7 @@ export default function BlockchainVerification() {
       <div>
         <h1 className="text-3xl font-bold text-foreground">Blockchain Verification</h1>
         <p className="text-muted-foreground mt-2">
-          Verify patent integrity and ownership using Hedera blockchain technology.
+          Verify patent integrity and ownership using Base blockchain technology.
         </p>
       </div>
 
@@ -170,17 +153,15 @@ export default function BlockchainVerification() {
 
               {/* Verification Result */}
               {verificationResult && (
-                <div className={`p-4 rounded-lg ${
-                  verificationResult.verified 
-                    ? 'bg-green-50 border border-green-200' 
-                    : 'bg-red-50 border border-red-200'
-                }`}>
+                <div className={`p-4 rounded-lg ${verificationResult.verified
+                  ? 'bg-green-50 border border-green-200'
+                  : 'bg-red-50 border border-red-200'
+                  }`}>
                   <div className="flex items-start space-x-3">
-                    <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
-                      verificationResult.verified 
-                        ? 'bg-green-100' 
-                        : 'bg-red-100'
-                    }`}>
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${verificationResult.verified
+                      ? 'bg-green-100'
+                      : 'bg-red-100'
+                      }`}>
                       {verificationResult.verified ? (
                         <CheckCircle className="text-green-600" size={16} />
                       ) : (
@@ -188,14 +169,12 @@ export default function BlockchainVerification() {
                       )}
                     </div>
                     <div>
-                      <h4 className={`font-medium ${
-                        verificationResult.verified ? 'text-green-900' : 'text-red-900'
-                      }`}>
+                      <h4 className={`font-medium ${verificationResult.verified ? 'text-green-900' : 'text-red-900'
+                        }`}>
                         {verificationResult.verified ? 'Verification Successful' : 'Verification Failed'}
                       </h4>
-                      <p className={`text-sm mt-1 ${
-                        verificationResult.verified ? 'text-green-700' : 'text-red-700'
-                      }`}>
+                      <p className={`text-sm mt-1 ${verificationResult.verified ? 'text-green-700' : 'text-red-700'
+                        }`}>
                         {verificationResult.message}
                       </p>
                       {verificationResult.timestamp && (
@@ -221,19 +200,19 @@ export default function BlockchainVerification() {
             <CardContent className="space-y-4">
               <div className="flex items-center space-x-3">
                 <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span className="text-sm">Immutable timestamps</span>
+                <span className="text-sm">Immutable Base timestamps</span>
               </div>
               <div className="flex items-center space-x-3">
                 <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span className="text-sm">Cryptographic hashing</span>
+                <span className="text-sm">Cryptographic hashing (SHA-256)</span>
               </div>
               <div className="flex items-center space-x-3">
                 <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span className="text-sm">Distributed consensus</span>
+                <span className="text-sm">Base Layer-2 consensus</span>
               </div>
               <div className="flex items-center space-x-3">
                 <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span className="text-sm">Global verification</span>
+                <span className="text-sm">Global auditability</span>
               </div>
             </CardContent>
           </Card>
@@ -259,8 +238,8 @@ export default function BlockchainVerification() {
                       <div className="mt-1">
                         <Badge className={
                           selectedPatent.status === 'approved' ? 'bg-green-100 text-green-800' :
-                          selectedPatent.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                          'bg-muted text-muted-foreground'
+                            selectedPatent.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                              'bg-muted text-muted-foreground'
                         }>
                           {selectedPatent.status.charAt(0).toUpperCase() + selectedPatent.status.slice(1)}
                         </Badge>
@@ -296,52 +275,51 @@ export default function BlockchainVerification() {
                 <CardHeader className="border-b border-border">
                   <CardTitle className="flex items-center">
                     <LinkIcon className="mr-2" size={20} />
-                    Blockchain Details
+                    Base Blockchain Details
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="p-6">
-                  {selectedPatent.hederaTopicId ? (
+                  {selectedPatent.blockchainTxHash ? (
                     <div className="grid grid-cols-1 gap-6">
                       <div>
-                        <label className="text-sm font-medium text-muted-foreground">Hedera Topic ID</label>
+                        <label className="text-sm font-medium text-muted-foreground">Transaction Hash</label>
                         <div className="flex items-center space-x-2 mt-1">
-                          <code className="text-sm bg-muted px-2 py-1 rounded font-mono">
-                            {selectedPatent.hederaTopicId}
+                          <code className="text-sm bg-muted px-2 py-1 rounded font-mono break-all">
+                            {selectedPatent.blockchainTxHash}
                           </code>
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => copyToClipboard(selectedPatent.hederaTopicId!)}
+                            onClick={() => copyToClipboard(selectedPatent.blockchainTxHash!)}
                           >
                             <Copy size={14} />
                           </Button>
-                          <Button variant="ghost" size="sm">
-                            <ExternalLink size={14} />
-                          </Button>
+                          <a
+                            href={`https://sepolia.basescan.org/tx/${selectedPatent.blockchainTxHash}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            <Button variant="ghost" size="sm">
+                              <ExternalLink size={14} />
+                            </Button>
+                          </a>
                         </div>
                       </div>
 
-                      {selectedPatent.hederaMessageId && (
+                      {selectedPatent.networkName && (
                         <div>
-                          <label className="text-sm font-medium text-muted-foreground">Message ID</label>
-                          <div className="flex items-center space-x-2 mt-1">
-                            <code className="text-sm bg-muted px-2 py-1 rounded font-mono">
-                              {selectedPatent.hederaMessageId}
-                            </code>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => copyToClipboard(selectedPatent.hederaMessageId!)}
-                            >
-                              <Copy size={14} />
-                            </Button>
+                          <label className="text-sm font-medium text-muted-foreground">Network</label>
+                          <div className="mt-1">
+                            <Badge variant="outline" className="font-mono">
+                              {selectedPatent.networkName.toUpperCase()}
+                            </Badge>
                           </div>
                         </div>
                       )}
 
                       {selectedPatent.hashValue && (
                         <div>
-                          <label className="text-sm font-medium text-muted-foreground">SHA-256 Hash</label>
+                          <label className="text-sm font-medium text-muted-foreground">SHA-256 Content Hash</label>
                           <div className="flex items-center space-x-2 mt-1">
                             <code className="text-sm bg-muted px-2 py-1 rounded font-mono break-all">
                               {selectedPatent.hashValue}
@@ -357,27 +335,6 @@ export default function BlockchainVerification() {
                         </div>
                       )}
 
-                      {selectedPatent.hederaNftId && (
-                        <div>
-                          <label className="text-sm font-medium text-muted-foreground">NFT Token ID</label>
-                          <div className="flex items-center space-x-2 mt-1">
-                            <code className="text-sm bg-muted px-2 py-1 rounded font-mono">
-                              {selectedPatent.hederaNftId}
-                            </code>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={() => copyToClipboard(selectedPatent.hederaNftId!)}
-                            >
-                              <Copy size={14} />
-                            </Button>
-                            <Badge variant="secondary" className="bg-purple-100 text-purple-800">
-                              NFT
-                            </Badge>
-                          </div>
-                        </div>
-                      )}
-
                       <div className="bg-green-50 p-4 rounded-lg">
                         <div className="flex items-start space-x-3">
                           <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center flex-shrink-0">
@@ -386,7 +343,7 @@ export default function BlockchainVerification() {
                           <div>
                             <h4 className="font-medium text-green-900 mb-1">Blockchain Secured</h4>
                             <p className="text-sm text-green-700">
-                              This patent is permanently recorded on the Hedera blockchain with 
+                              This patent is permanently recorded on the Base blockchain with
                               cryptographic proof of existence and integrity.
                             </p>
                           </div>
@@ -402,7 +359,7 @@ export default function BlockchainVerification() {
                         <div>
                           <h4 className="font-medium text-yellow-900 mb-1">Not Blockchain Secured</h4>
                           <p className="text-sm text-yellow-700 mb-3">
-                            This patent has not been recorded on the blockchain yet. 
+                            This patent has not been recorded on the blockchain yet.
                             Secure it now for immutable proof of existence.
                           </p>
                           <Button size="sm" className="bg-primary hover:bg-primary-dark">
@@ -428,57 +385,6 @@ export default function BlockchainVerification() {
           )}
         </div>
       </div>
-
-      {/* Blockchain Secured Patents List */}
-      {blockchainSecuredPatents.length > 0 && (
-        <Card>
-          <CardHeader className="border-b border-border">
-            <CardTitle>Blockchain Secured Patents</CardTitle>
-            <CardDescription>
-              All your patents that are secured on the Hedera blockchain
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="p-6">
-            <div className="space-y-4">
-              {blockchainSecuredPatents.map((patent: Patent) => (
-                <div key={patent.id} className="flex items-center justify-between p-4 border border-border rounded-lg">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                      <Shield className="text-green-600" size={20} />
-                    </div>
-                    <div>
-                      <h4 className="font-medium text-foreground">{patent.title}</h4>
-                      <p className="text-sm text-muted-foreground">
-                        Topic: {patent.hederaTopicId}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    {patent.hederaNftId && (
-                      <Badge variant="secondary" className="bg-purple-100 text-purple-800">
-                        NFT
-                      </Badge>
-                    )}
-                    <Badge className="bg-green-100 text-green-800">
-                      Secured
-                    </Badge>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        setSelectedPatentId(patent.id);
-                        handleVerifyPatent(patent.id);
-                      }}
-                    >
-                      Verify
-                    </Button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
     </div>
   );
 }

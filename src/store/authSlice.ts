@@ -69,9 +69,9 @@ export const initializeAuth = createAsyncThunk(
           try {
             await authAPI.getCurrentUser();
           } catch (error) {
-            // Session expired, clear localStorage and redirect
+            // Session expired, clear storage and logout
             localStorage.removeItem('patent_hash_user');
-            if (typeof window !== 'undefined' && !window.location.pathname.includes('/login')) {
+            if (typeof window !== 'undefined' && !window.location.pathname.includes('/login') && !window.location.pathname.includes('/signup')) {
               window.location.href = '/login';
             }
           }
@@ -94,7 +94,8 @@ export const loginUser = createAsyncThunk(
   'auth/login',
   async (credentials: { email: string; password: string }, { rejectWithValue }) => {
     try {
-      const user = await authAPI.login(credentials);
+      const response = await authAPI.login(credentials) as any;
+      const { user } = response;
       localStorage.setItem('patent_hash_user', JSON.stringify(user));
       return user;
     } catch (error: any) {
@@ -120,7 +121,8 @@ export const registerUser = createAsyncThunk(
     lastName: string;
   }, { rejectWithValue }) => {
     try {
-      const user = await authAPI.register(userData);
+      const response = await authAPI.register(userData) as any;
+      const { user } = response;
       localStorage.setItem('patent_hash_user', JSON.stringify(user));
       return user;
     } catch (error: any) {

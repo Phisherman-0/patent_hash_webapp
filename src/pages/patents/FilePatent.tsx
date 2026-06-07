@@ -6,17 +6,16 @@ import { useLocation } from "wouter";
 import { z } from "zod";
 import { patentAPI } from "@/lib/apiService";
 import { useToast } from "@/hooks/use-toast";
-import { useHashPackWallet } from "@/contexts/HashPackWalletContext";
-import { HederaSmartContractService, PatentRecord } from "@/services/hederaSmartContractService";
-import { ConnectionState } from "@/services/hashPackWalletService";
+import { useAccount } from "wagmi";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Shield, Upload, FileText, Image, X } from "lucide-react";
-import { PATENT_CATEGORIES, getCategoryLabel, getSubcategoryLabel } from "@/constants/patentCategories";
+import { Shield, Upload, FileText, Image, X, Wallet } from "lucide-react";
+import { PATENT_CATEGORIES } from "@/constants/patentCategories";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
 
 const patentFormSchema = z.object({
   title: z.string().min(10, "Title must be at least 10 characters").max(200, "Title must be less than 200 characters"),
@@ -30,12 +29,11 @@ type PatentFormValues = z.infer<typeof patentFormSchema>;
 export default function FilePatent() {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [showWalletConnectionPrompt, setShowWalletConnectionPrompt] = useState(false);
-  const [pendingSubmission, setPendingSubmission] = useState<PatentFormValues | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [, navigate] = useLocation();
-  const { walletInfo, connectionState, connect } = useHashPackWallet();
+  const { address, isConnected } = useAccount();
 
   const form = useForm<PatentFormValues>({
     resolver: zodResolver(patentFormSchema),
@@ -49,97 +47,6 @@ export default function FilePatent() {
 
   const mutation = useMutation({
     mutationFn: async (data: PatentFormValues & { files: File[] }) => {
-      // Check if HashPack wallet is connected for smart contract signing
-      const useSmartContract = walletInfo && connectionState === ConnectionState.Connected;
-      
-      if (useSmartContract) {
-        // Generate patent hash for blockchain storage
-        const patentContent = `${data.title}|${data.description}|${data.category}|${data.subcategory || ''}`;
-        const documentHash = HederaSmartContractService.generateDocumentHash(patentContent);
-        
-        // Create patent record for smart contract
-        const patentRecord: PatentRecord = {
-          patentId: `patent_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-          title: data.title,
-          description: data.description,
-          category: data.category,
-          subcategory: data.subcategory,
-          ownerAccountId: walletInfo.accountId,
-          timestamp: Date.now(),
-          documentHash: documentHash
-        };
-        
-        // Store on blockchain using HashPack wallet
-      try {
-        // First, create the topic transaction
-        const topicTxResponse = await fetch('/api/hashpack/patent-hash-transaction', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          credentials: 'include',
-          body: JSON.stringify({
-            patentId: patentRecord.patentId,
-            filePath: data.files[0] ? URL.createObjectURL(data.files[0]) : null
-          })
-        });
-
-        if (!topicTxResponse.ok) {
-          throw new Error('Failed to create topic transaction');
-        }
-
-        const topicTxResult = await topicTxResponse.json();
-        
-        // Send transaction to HashPack for signing
-        // Note: In a real implementation, this would use the HashPack wallet's sendTransaction method
-        // For now, we'll simulate the process
-        
-        // Submit the signed transaction
-        const submitResponse = await fetch('/api/hashpack/submit-transaction', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          credentials: 'include',
-          body: JSON.stringify({
-            signedTransactionBytes: topicTxResult.transactionBytes,
-            network: walletInfo.network
-          })
-        });
-
-        if (!submitResponse.ok) {
-          throw new Error('Failed to submit transaction');
-        }
-
-        const submitResult = await submitResponse.json();
-        
-        // Then store in traditional database with blockchain reference
-        const formData = new FormData();
-        formData.append('title', data.title);
-        formData.append('description', data.description);
-        formData.append('category', data.category);
-        if (data.subcategory) {
-          formData.append('subcategory', data.subcategory);
-        }
-        formData.append('blockchainHash', documentHash);
-        formData.append('patentId', patentRecord.patentId);
-        formData.append('useSmartContract', 'true');
-        formData.append('hederaTopicId', submitResult.topicId);
-        formData.append('hederaMessageId', submitResult.messageId);
-        formData.append('hederaTransactionId', submitResult.transactionId);
-        
-        data.files.forEach((file) => {
-          formData.append('documents', file);
-        });
-        
-        return patentAPI.createPatent(formData);
-      } catch (error) {
-        console.error('Blockchain storage failed, falling back to traditional storage:', error);
-        // Fall back to traditional storage if blockchain storage fails
-      }
-      }
-      
-      // Traditional patent storage
       const formData = new FormData();
       formData.append('title', data.title);
       formData.append('description', data.description);
@@ -147,7 +54,7 @@ export default function FilePatent() {
       if (data.subcategory) {
         formData.append('subcategory', data.subcategory);
       }
-      
+
       data.files.forEach((file) => {
         formData.append('documents', file);
       });
@@ -158,12 +65,12 @@ export default function FilePatent() {
       queryClient.invalidateQueries({ queryKey: ['patents'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard-stats'] });
       queryClient.invalidateQueries({ queryKey: ['dashboard-activities'] });
-      
+
       toast({
         title: "Patent filed successfully",
-        description: "Your patent has been filed and will be processed shortly.",
+        description: "Your patent has been filed and registered on the Base blockchain.",
       });
-      
+
       form.reset();
       setSelectedFiles([]);
       navigate('/patents/my-patents');
@@ -186,39 +93,13 @@ export default function FilePatent() {
       });
       return;
     }
-    
-    // Check if HashPack wallet is connected
-    const hashPackConnected = walletInfo && connectionState === ConnectionState.Connected;
-    
-    if (!hashPackConnected) {
-      setPendingSubmission(data);
+
+    if (!isConnected) {
       setShowWalletConnectionPrompt(true);
       return;
     }
-    
+
     mutation.mutate({ ...data, files: selectedFiles });
-  };
-
-  const handleConnectWallet = async () => {
-    try {
-      await connect('testnet');
-      if (pendingSubmission) {
-        mutation.mutate({ ...pendingSubmission, files: selectedFiles });
-        setPendingSubmission(null);
-      }
-      setShowWalletConnectionPrompt(false);
-    } catch (error: any) {
-      toast({
-        title: "Connection Failed",
-        description: error.message || "Failed to connect wallet",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleWalletConnectionClose = () => {
-    setShowWalletConnectionPrompt(false);
-    setPendingSubmission(null);
   };
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -235,7 +116,7 @@ export default function FilePatent() {
       <div>
         <h1 className="text-3xl font-bold text-foreground">File New Patent</h1>
         <p className="text-muted-foreground mt-2">
-          Submit your intellectual property for blockchain-secured protection and AI analysis.
+          Submit your intellectual property for Base blockchain-secured protection and AI analysis.
         </p>
       </div>
 
@@ -259,7 +140,7 @@ export default function FilePatent() {
                       <FormItem>
                         <FormLabel>Patent Title</FormLabel>
                         <FormControl>
-                          <Input 
+                          <Input
                             placeholder="Enter a descriptive title for your invention"
                             {...field}
                           />
@@ -366,8 +247,8 @@ export default function FilePatent() {
                         Upload patent documents, diagrams, technical specifications, etc.
                       </p>
                     </div>
-                    
-                    <div 
+
+                    <div
                       className="border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-primary/50 hover:bg-muted transition-colors cursor-pointer"
                       onClick={() => document.getElementById('file-upload')?.click()}
                     >
@@ -402,7 +283,7 @@ export default function FilePatent() {
                             const fileExtension = file.name.split('.').pop()?.toLowerCase() || '';
                             const isImage = ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp'].includes(fileExtension);
                             const IconComponent = isImage ? Image : FileText;
-                            
+
                             return (
                               <div key={index} className="flex items-center justify-between p-3 bg-muted rounded-lg border">
                                 <div className="flex items-center space-x-3 flex-1 min-w-0">
@@ -442,8 +323,8 @@ export default function FilePatent() {
                     <Button type="button" variant="outline" onClick={() => form.reset()}>
                       Reset
                     </Button>
-                    <Button 
-                      type="submit" 
+                    <Button
+                      type="submit"
                       disabled={mutation.isPending}
                       className="bg-primary hover:bg-primary-dark"
                     >
@@ -467,52 +348,31 @@ export default function FilePatent() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="text-sm text-muted-foreground mb-3">
-                {walletInfo && connectionState === ConnectionState.Connected ? (
-                  <span className="text-green-600 font-medium">✓ Smart Contract Protection Active</span>
+                {isConnected ? (
+                  <span className="text-green-600 font-medium">✓ Base Blockchain Protection Active</span>
                 ) : (
                   "Your patent will be secured with blockchain technology:"
                 )}
               </div>
               <ul className="space-y-2 text-sm">
                 <li className="flex items-center">
-                  <div className={`w-2 h-2 rounded-full mr-2 ${
-                    walletInfo && connectionState === ConnectionState.Connected 
-                      ? 'bg-green-500' 
-                      : 'bg-gray-400'
-                  }`}></div>
-                  {walletInfo && connectionState === ConnectionState.Connected 
-                    ? 'Smart contract storage on Hedera'
-                    : 'Cryptographic hash generation'
-                  }
+                  <div className={`w-2 h-2 rounded-full mr-2 ${isConnected ? 'bg-green-500' : 'bg-gray-400'}`}></div>
+                  Cryptographic hash generation
                 </li>
                 <li className="flex items-center">
-                  <div className={`w-2 h-2 rounded-full mr-2 ${
-                    walletInfo && connectionState === ConnectionState.Connected 
-                      ? 'bg-green-500' 
-                      : 'bg-gray-400'
-                  }`}></div>
-                  {walletInfo && connectionState === ConnectionState.Connected 
-                    ? 'HashPack wallet signed transactions'
-                    : 'Immutable blockchain storage'
-                  }
+                  <div className={`w-2 h-2 rounded-full mr-2 ${isConnected ? 'bg-green-500' : 'bg-gray-400'}`}></div>
+                  Immutable Base blockchain storage
                 </li>
                 <li className="flex items-center">
-                  <div className={`w-2 h-2 rounded-full mr-2 ${
-                    walletInfo && connectionState === ConnectionState.Connected 
-                      ? 'bg-green-500' 
-                      : 'bg-gray-400'
-                  }`}></div>
-                  {walletInfo && connectionState === ConnectionState.Connected 
-                    ? 'Verifiable ownership proof'
-                    : 'Tamper-proof timestamp'
-                  }
+                  <div className={`w-2 h-2 rounded-full mr-2 ${isConnected ? 'bg-green-500' : 'bg-gray-400'}`}></div>
+                  Verifiable ownership proof
                 </li>
               </ul>
-              {walletInfo && connectionState === ConnectionState.Connected && (
+              {isConnected && address && (
                 <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
-                  <div className="text-xs text-green-800">
-                    <strong>Connected:</strong> {walletInfo.accountId}<br/>
-                    <strong>Network:</strong> {walletInfo.network.toUpperCase()}
+                  <div className="text-xs text-green-800 break-all">
+                    <strong>Wallet:</strong> {address}<br />
+                    <strong>Network:</strong> BASE SEPOLIA
                   </div>
                 </div>
               )}
@@ -526,21 +386,22 @@ export default function FilePatent() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <Card className="max-w-md w-full">
             <CardHeader>
-              <CardTitle>Connect Wallet to File Patent</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                <Wallet className="w-6 h-6" />
+                Connect Wallet to File Patent
+              </CardTitle>
               <CardDescription>
-                A wallet connection is required to file patents with blockchain protection.
+                A wallet connection is required to file patents with Base blockchain protection.
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-sm text-muted-foreground">
-                Connect your HashPack wallet for smart contract protection and verifiable ownership proof.
+                Connect your MetaMask or other EVM wallet to secure your patent on the Base blockchain.
               </p>
-              <div className="flex space-x-2">
-                <Button variant="outline" onClick={handleWalletConnectionClose}>
+              <div className="flex flex-col space-y-2">
+                <ConnectButton />
+                <Button variant="outline" onClick={() => setShowWalletConnectionPrompt(false)}>
                   Cancel
-                </Button>
-                <Button onClick={handleConnectWallet} className="flex-1">
-                  Connect HashPack
                 </Button>
               </div>
             </CardContent>

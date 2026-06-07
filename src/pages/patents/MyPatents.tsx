@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
-import { patentAPI, documentAPI, blockchainAPI, type PatentDocument } from "@/lib/apiService";
+import { patentAPI, documentAPI, blockchainAPI, type PatentDocument, type Patent } from "@/lib/apiService";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import { useAppDispatch, useAppSelector } from "@/hooks/useAppDispatch";
 import { clearUser } from "@/store/authSlice";
@@ -24,25 +24,9 @@ import {
   Brain,
   Plus,
   Trash2,
-  Coins,
+  ExternalLink,
 } from "lucide-react";
 import { Link } from "wouter";
-
-interface Patent {
-  id: string;
-  title: string;
-  description: string;
-  category: string;
-  status: string;
-  patentNumber?: string;
-  estimatedValue?: string;
-  filedAt?: string;
-  approvedAt?: string;
-  expiresAt?: string;
-  hederaTopicId?: string;
-  hederaNftId?: string;
-  createdAt: string;
-}
 
 const statusColors: Record<string, string> = {
   draft: "bg-muted text-muted-foreground",
@@ -187,26 +171,6 @@ export default function MyPatents() {
     },
   });
 
-  const mintNFTMutation = useMutation({
-    mutationFn: async (patentId: string) => {
-      return blockchainAPI.mintNFT(patentId);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["patents"] });
-      toast({
-        title: "NFT Minted Successfully",
-        description: "Your patent NFT has been minted on the Hedera blockchain.",
-      });
-    },
-    onError: (error: Error) => {
-      toast({
-        title: "NFT Minting Failed",
-        description: error.message || "Failed to mint NFT. Please try again.",
-        variant: "destructive",
-      });
-    },
-  });
-
   const formatCategoryName = (category: string) => {
     return category.split('_').map(word =>
       word.charAt(0).toUpperCase() + word.slice(1)
@@ -219,7 +183,7 @@ export default function MyPatents() {
     ).join(' ');
   };
 
-  const formatCurrency = (value?: string) => {
+  const formatCurrency = (value?: string | number) => {
     if (!value) return "Not valued";
     return `$${Number(value).toLocaleString()}`;
   };
@@ -268,7 +232,7 @@ export default function MyPatents() {
         <div>
           <h1 className="text-3xl font-bold text-foreground">My Patents</h1>
           <p className="text-muted-foreground mt-2">
-            Manage and track your intellectual property portfolio
+            Manage and track your intellectual property portfolio on the Base blockchain.
           </p>
         </div>
         <Link href="/patents/file">
@@ -363,81 +327,8 @@ export default function MyPatents() {
             </div>
           ) : (
             <div className="flex flex-col gap-4">
-              {/* Mobile Card View */}
-              <div className="grid grid-cols-1 gap-4 md:hidden">
-                {filteredPatents.map((patent: Patent) => {
-                  const CategoryIcon = categoryIcons[patent.category] || FileText;
-                  return (
-                    <Card key={patent.id}>
-                      <CardContent className="p-4 space-y-4">
-                        <div className="flex items-start justify-between">
-                          <div className="flex items-center space-x-3">
-                            <div className="w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                              <CategoryIcon className="text-primary" size={20} />
-                            </div>
-                            <div className="min-w-0">
-                              <div className="font-medium text-foreground truncate">{patent.title}</div>
-                              <div className="text-xs text-muted-foreground truncate">{patent.patentNumber || `ID: ${patent.id.slice(0, 8)}...`}</div>
-                            </div>
-                          </div>
-                          <Badge className={statusColors[patent.status] || statusColors.draft}>
-                            {formatStatusName(patent.status)}
-                          </Badge>
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-2 text-sm">
-                          <div>
-                            <span className="text-muted-foreground block text-xs">Category</span>
-                            {formatCategoryName(patent.category)}
-                          </div>
-                          <div>
-                            <span className="text-muted-foreground block text-xs">Value</span>
-                            {formatCurrency(patent.estimatedValue)}
-                          </div>
-                          <div>
-                            <span className="text-muted-foreground block text-xs">Filed Date</span>
-                            {formatDate(patent.filedAt || patent.createdAt)}
-                          </div>
-                          <div>
-                            <span className="text-muted-foreground block text-xs">Security</span>
-                            <div className="flex items-center gap-1">
-                              {patent.hederaTopicId ? (
-                                <Shield className="text-green-600" size={14} />
-                              ) : (
-                                <span className="text-muted-foreground">Not secured</span>
-                              )}
-                              {patent.hederaNftId && (
-                                <Badge variant="secondary" className="text-[10px] h-5 px-1">NFT</Badge>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="flex justify-end gap-2 pt-2 border-t mt-2">
-                          <Button variant="ghost" size="sm" onClick={() => handleViewPatent(patent)}>
-                            <Eye size={16} className="mr-2" /> View
-                          </Button>
-                          <Button variant="ghost" size="sm">
-                            <Download size={16} className="mr-2" /> Doc
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="text-red-500 hover:text-red-600 hover:bg-red-50"
-                            onClick={() => handleDeleteClick(patent.id)}
-                            disabled={deleteMutation.isPending}
-                          >
-                            <Trash2 size={16} className="mr-2" /> Delete
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  );
-                })}
-              </div>
-
               {/* Desktop Table View */}
-              <div className="hidden md:block overflow-x-auto">
+              <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -466,7 +357,7 @@ export default function MyPatents() {
                                   {patent.title}
                                 </div>
                                 <div className="text-sm text-muted-foreground truncate">
-                                  {patent.patentNumber || `ID: ${patent.id.slice(0, 8)}...`}
+                                  {`ID: ${patent.id.slice(0, 8)}...`}
                                 </div>
                               </div>
                             </div>
@@ -483,17 +374,20 @@ export default function MyPatents() {
                             {formatCurrency(patent.estimatedValue)}
                           </TableCell>
                           <TableCell className="text-sm text-muted-foreground">
-                            {formatDate(patent.filedAt || patent.createdAt)}
+                            {formatDate(patent.createdAt)}
                           </TableCell>
                           <TableCell>
                             <div className="flex items-center justify-center space-x-1">
-                              {patent.hederaTopicId && (
-                                <Shield className="text-green-600" size={16} />
-                              )}
-                              {patent.hederaNftId && (
-                                <Badge variant="secondary" className="text-xs">NFT</Badge>
-                              )}
-                              {!patent.hederaTopicId && (
+                              {patent.blockchainTxHash ? (
+                                <a
+                                  href={`https://sepolia.basescan.org/tx/${patent.blockchainTxHash}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  title="View on BaseScan"
+                                >
+                                  <Shield className="text-green-600 hover:text-green-700" size={16} />
+                                </a>
+                              ) : (
                                 <span className="text-muted-foreground text-xs">Not secured</span>
                               )}
                             </div>
@@ -547,7 +441,7 @@ export default function MyPatents() {
               {selectedPatent?.title}
             </DialogTitle>
             <DialogDescription>
-              Patent ID: {selectedPatent?.patentNumber || selectedPatent?.id}
+              Patent ID: {selectedPatent?.id}
             </DialogDescription>
           </DialogHeader>
 
@@ -575,28 +469,35 @@ export default function MyPatents() {
                 <div className="space-y-4">
                   <div>
                     <h4 className="font-semibold text-sm text-muted-foreground mb-2">Filed Date</h4>
-                    <p className="text-sm">{formatDate(selectedPatent.filedAt || selectedPatent.createdAt)}</p>
+                    <p className="text-sm">{formatDate(selectedPatent.createdAt)}</p>
                   </div>
                   <div>
                     <h4 className="font-semibold text-sm text-muted-foreground mb-2">Blockchain Status</h4>
                     <div className="flex items-center gap-2">
-                      {selectedPatent.hederaTopicId ? (
+                      {selectedPatent.blockchainTxHash ? (
                         <>
                           <Shield className="text-green-600" size={16} />
-                          <span className="text-sm text-green-600">Secured</span>
+                          <span className="text-sm text-green-600">Secured on Base</span>
                         </>
                       ) : (
                         <span className="text-sm text-muted-foreground">Not secured</span>
                       )}
-                      {selectedPatent.hederaNftId && (
-                        <Badge variant="secondary" className="text-xs ml-2">NFT Minted</Badge>
-                      )}
                     </div>
                   </div>
-                  {selectedPatent.hederaTopicId && (
+                  {selectedPatent.blockchainTxHash && (
                     <div>
-                      <h4 className="font-semibold text-sm text-muted-foreground mb-2">Hedera Topic ID</h4>
-                      <p className="text-xs font-mono bg-muted p-2 rounded">{selectedPatent.hederaTopicId}</p>
+                      <h4 className="font-semibold text-sm text-muted-foreground mb-2">Transaction Hash</h4>
+                      <p className="text-xs font-mono bg-muted p-2 rounded break-all">
+                        {selectedPatent.blockchainTxHash}
+                      </p>
+                      <a
+                        href={`https://sepolia.basescan.org/tx/${selectedPatent.blockchainTxHash}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs text-primary flex items-center mt-1"
+                      >
+                        View on BaseScan <ExternalLink size={10} className="ml-1" />
+                      </a>
                     </div>
                   )}
                 </div>
@@ -658,16 +559,6 @@ export default function MyPatents() {
             <Button variant="outline" onClick={() => setShowPatentModal(false)}>
               Close
             </Button>
-            {selectedPatent && !selectedPatent.hederaNftId && (
-              <Button
-                onClick={() => mintNFTMutation.mutate(selectedPatent.id)}
-                disabled={mintNFTMutation.isPending}
-                className="mr-2"
-              >
-                <Coins className="mr-2" size={16} />
-                {mintNFTMutation.isPending ? "Minting NFT..." : "Mint NFT"}
-              </Button>
-            )}
             <Button>
               <Download className="mr-2" size={16} />
               Download Patent

@@ -23,7 +23,7 @@ export default function OTPVerificationPage() {
   const [, navigate] = useLocation();
   const searchParams = new URLSearchParams(window.location.search);
   const emailParam = searchParams.get("email");
-  const email = user?.email || emailParam; // Priority to logged in user, then param
+  const email = (user?.email || emailParam || "").replace(/^undefined$/, "");
 
   // Redirect if no user or already verified
   // Redirect if no user or already verified

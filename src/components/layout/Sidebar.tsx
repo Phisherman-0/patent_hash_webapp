@@ -35,7 +35,7 @@ import logo from "../../assets/hash-logo-inverted.png";
 
 interface NavItem {
   label: string;
-  icon: React.ComponentType<{ size?: number }>;
+  icon: React.ElementType;
   href: string;
 }
 

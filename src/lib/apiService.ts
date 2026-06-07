@@ -13,9 +13,9 @@ export interface Patent {
   aiSuggestedCategory?: string;
   aiConfidence?: string;
   estimatedValue?: string;
-  hederaTopicId?: string;
-  hederaMessageId?: string;
-  hederaNftId?: string;
+  blockchainTxHash?: string;
+  networkName?: string;
+  blockchainStatus?: string;
   hashValue?: string;
 }
 
@@ -26,6 +26,7 @@ export interface Consultant {
     firstName: string;
     lastName: string;
     email: string;
+    profileImageUrl?: string | null;
   };
   specialization?: string;
   bio?: string;
@@ -87,23 +88,6 @@ export interface PatentDocument {
   createdAt: string;
 }
 
-export interface Consultant {
-  id: string;
-  userId: string;
-  specialization?: string;
-  bio?: string;
-  experienceYears?: number;
-  hourlyRate?: number;
-  availability?: any;
-  rating?: number;
-  isVerified?: boolean;
-  verifiedBy?: string;
-  verifiedAt?: string;
-  verificationNotes?: string;
-  createdAt?: string;
-  updatedAt?: string;
-}
-
 export interface Appointment {
   id: string;
   userId: string;
@@ -122,6 +106,16 @@ export interface ChatRoom {
   id: string;
   userId: string;
   consultantId: string;
+  user?: {
+    firstName: string;
+    lastName: string;
+  };
+  consultant?: {
+    user?: {
+      firstName: string;
+      lastName: string;
+    };
+  };
   createdAt: string;
   updatedAt: string;
 }
@@ -168,19 +162,20 @@ export const authAPI = {
     api.post('/auth/resend-otp', data),
 };
 
-// Wallet API calls - Updated for new database schema
+// Wallet API calls - Updated for EVM/Base
 export const walletAPI = {
-  // HashPack wallet connection
-  connectHashPack: async (connectionData: { 
-    accountId: string; 
-    network: 'testnet' | 'mainnet';
-    sessionData?: any;
+  // Connect EVM wallet (Base, etc.)
+  connectWallet: async (connectionData: { 
+    walletAddress: string; 
+    networkName: string;
+    walletType: 'metamask' | 'walletconnect' | 'coinbase';
+    chainId: number;
   }) =>
-    api.post('/api/wallet/hashpack/connect', connectionData),
+    api.post('/auth/wallet/connect', connectionData),
 
-  // Legacy wallet validation (for backward compatibility)
-  validate: async (walletConfig: { accountId: string; privateKey: string; network: string }) =>
-    api.post('/api/wallet/validate', walletConfig),
+  // Legacy/Generic wallet validation
+  validate: async (walletConfig: any) =>
+    api.post('/auth/wallet/validate', walletConfig),
 
   // Get wallet connections for current user
   getConnections: async () =>
@@ -194,7 +189,7 @@ export const walletAPI = {
   disconnect: async (connectionId: string) =>
     api.delete(`/api/wallet/disconnect/${connectionId}`),
 
-  // Store patent hash using wallet connection
+  // Store patent hash using wallet connection (legacy support)
   storePatentHash: async (data: {
     patentId: string;
     connectionId: string;

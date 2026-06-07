@@ -6,7 +6,7 @@ import { clearUser } from "@/store/authSlice";
 
 export default function Landing() {
   const dispatch = useAppDispatch();
-  
+
   const handleLogin = () => {
     dispatch(clearUser());
   };
@@ -39,19 +39,19 @@ export default function Landing() {
               <span className="text-primary block">Blockchain-Powered Patents</span>
             </h1>
             <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-              The world's first AI-driven patent management platform using Hedera blockchain technology. 
+              The world's first AI-driven patent management platform using Base blockchain technology.
               Secure your intellectual property, discover prior art, and manage your patent portfolio with enterprise-grade tools.
             </p>
             <div className="space-y-4 sm:space-y-0 sm:space-x-4 sm:flex sm:justify-center">
-              <Button 
+              <Button
                 onClick={handleLogin}
-                size="lg" 
+                size="lg"
                 className="bg-primary hover:bg-primary-dark text-white px-8 py-3"
               >
                 Get Started Free
               </Button>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 size="lg"
                 className="border-primary text-primary hover:bg-primary hover:text-white px-8 py-3"
               >
@@ -88,7 +88,7 @@ export default function Landing() {
                 </div>
                 <CardTitle>Blockchain Security</CardTitle>
                 <CardDescription>
-                  Immutable proof-of-existence using Hedera consensus service with enterprise-grade security.
+                  Immutable proof-of-existence using Base blockchain technology with Ethereum-level security.
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -112,7 +112,7 @@ export default function Landing() {
                 </div>
                 <CardTitle>Instant Verification</CardTitle>
                 <CardDescription>
-                  Real-time patent verification and ownership confirmation through decentralized ledger technology.
+                  Real-time patent verification and ownership confirmation through the Base Layer-2 network.
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -146,9 +146,9 @@ export default function Landing() {
                 <div className="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center mb-4">
                   <Fingerprint className="text-red-600" size={24} />
                 </div>
-                <CardTitle>NFT Ownership</CardTitle>
+                <CardTitle>Web3 Ecosystem</CardTitle>
                 <CardDescription>
-                  Represent patent ownership as NFTs with smart contracts for automated licensing and royalties.
+                  Represent patent ownership in the EVM ecosystem with smart contracts for automated licensing.
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -165,9 +165,9 @@ export default function Landing() {
           <p className="text-xl text-orange-100 mb-8 max-w-2xl mx-auto">
             Join innovative companies already using Patent Hash to protect and monetize their intellectual property.
           </p>
-          <Button 
+          <Button
             onClick={handleLogin}
-            size="lg" 
+            size="lg"
             className="bg-white text-primary hover:bg-gray-100 px-8 py-3"
           >
             Start Your Free Trial
@@ -186,7 +186,7 @@ export default function Landing() {
               <span className="text-xl font-bold">Patent Hash</span>
             </div>
             <p className="text-gray-400">
-              Securing innovation through blockchain technology
+              Securing innovation through Base blockchain technology
             </p>
           </div>
         </div>
